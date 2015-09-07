@@ -2,14 +2,15 @@ package jp.azw.kancolleague.data;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class ShipGraph {
 	private int id; // api_id 管理用 id
@@ -17,8 +18,8 @@ public class ShipGraph {
 	private String fileName;
 	private String version;
 	
-	public ShipGraph(JsonObject apiStart2, int index) {
-		JsonObject apiMstShipgraph = apiStart2.getJsonObject("api_data").getJsonArray("api_mst_shipgraph").getJsonObject(index);
+	public ShipGraph(JSONObject apiStart2, int index) {
+		JSONObject apiMstShipgraph = apiStart2.getJSONObject("api_data").getJSONArray("api_mst_shipgraph").getJSONObject(index);
 		id = apiMstShipgraph.getInt("api_id");
 		sortNo = apiMstShipgraph.getInt("api_sortno");
 		fileName = apiMstShipgraph.getString("api_filename");
@@ -57,17 +58,19 @@ public class ShipGraph {
 		this.version = version;
 	}
 	
-	public static List<ShipGraph> buildList(JsonObject apiStart2) {
-		JsonArray apiMstShipgraphs = apiStart2.getJsonObject("api_data").getJsonArray("api_mst_shipgraph");
-		List<ShipGraph> list = new LinkedList<>();
-		IntStream.range(0, apiMstShipgraphs.size()).parallel().forEach(i -> list.add(new ShipGraph(apiStart2, i)));
+	public static List<ShipGraph> buildList(JSONObject apiStart2) {
+		JSONArray apiMstShipgraphs = apiStart2.getJSONObject("api_data").getJSONArray("api_mst_shipgraph");
+		List<ShipGraph> list = Collections.synchronizedList(new LinkedList<>());
+		IntStream.range(0, apiMstShipgraphs.length()).parallel().forEach(i -> 
+		{list.add(new ShipGraph(apiStart2, i));}
+		);
 		return list;
 	}
 	
-	public static Map<Integer, ShipGraph> buildMap(JsonObject apiStart2) {
-		JsonArray apiMstShipgraphs = apiStart2.getJsonObject("api_data").getJsonArray("api_mst_shipgraph");
+	public static Map<Integer, ShipGraph> buildMap(JSONObject apiStart2) {
+		JSONArray apiMstShipgraphs = apiStart2.getJSONObject("api_data").getJSONArray("api_mst_shipgraph");
 		Map<Integer, ShipGraph> map = new HashMap<>();
-		IntStream.range(0, apiMstShipgraphs.size()).parallel().forEach(i -> {
+		IntStream.range(0, apiMstShipgraphs.length()).parallel().forEach(i -> {
 			ShipGraph graph = new ShipGraph(apiStart2, i);
 			map.put(graph.getId(), graph);
 		});

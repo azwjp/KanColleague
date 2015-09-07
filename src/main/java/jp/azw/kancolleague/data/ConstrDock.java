@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 
 public class ConstrDock extends ArrayList<ConstrDock.ConstrDockValue> {
 	public enum State {
@@ -27,17 +28,17 @@ public class ConstrDock extends ArrayList<ConstrDock.ConstrDockValue> {
 		}
 	}
 
-	public ConstrDock(JsonObject kDock) {
+	public ConstrDock(JSONObject kDock) {
 		super();
-		JsonArray apiData = kDock.getJsonArray("api_data");
-		IntStream.range(0, apiData.size()).forEach(i -> this.add(new ConstrDockValue(apiData.getJsonObject(i))));
+		JSONArray apiData = kDock.getJSONArray("api_data");
+		IntStream.range(0, apiData.length()).forEach(i -> this.add(new ConstrDockValue(apiData.getJSONObject(i))));
 
 	}
 
 	public class ConstrDockValue {
-		private JsonObject apiData;
+		private JSONObject apiData;
 
-		public ConstrDockValue(JsonObject apiData) {
+		public ConstrDockValue(JSONObject apiData) {
 			this.apiData = apiData;
 		}
 

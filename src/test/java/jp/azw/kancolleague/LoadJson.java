@@ -7,7 +7,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class LoadJson {	
+import org.json.JSONObject;
+
+public class LoadJson {
+	public static JSONObject loadJson (String api) {
+		return new JSONObject(load(api));
+	}
+	
 	public static String load(String api) {
 		StringBuilder sb = new StringBuilder();
 		try {

@@ -1,30 +1,43 @@
 package jp.azw.kancolleague;
 
-import java.util.Arrays;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.fail;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.stream.IntStream;
 
-import javax.json.JsonArray;
-
-import jp.azw.kancolleague.util.Range;
+import org.json.JSONArray;
 
 public class Util {
-	@SuppressWarnings("unchecked")
-	private static <T> List<T> jsonArrayToList (JsonArray json, Class<T> clazz) {
-		return Arrays.asList((T[])json.toArray());
+	public static List<Integer> jsonArrayToIntList (JSONArray json) {
+		List<Integer> list = new ArrayList<>();
+		IntStream.range(0, json.length()).forEach(i -> list.add(json.getInt(i)));
+		return list;
 	}
 	
-	public static List<Integer> jsonArrayToIntList (JsonArray json) {
-//		List<Integer> list = new ArrayList<>();
-//		IntStream.range(0, json.size()).forEach(i -> list.add(json.getInt(i)));
-		return jsonArrayToList(json, Integer.class);
+	public static List<String> jsonArrayToStringList (JSONArray json) {
+		List<String> list = new ArrayList<>();
+		IntStream.range(0, json.length()).forEach(i -> list.add(json.getString(i)));
+		return list;
 	}
 	
-	public static List<String> jsonArrayToStringList (JsonArray json) {
-		return jsonArrayToList(json, String.class);
+	public static List<Boolean> jsonArrayToBoolList (JSONArray json) {
+		List<Boolean> list = new ArrayList<>();
+		IntStream.range(0, json.length()).forEach(i -> list.add(json.getBoolean(i)));
+		return list;
 	}
 	
-	public static List<Boolean> jsonArrayToBoolList (JsonArray json) {
-		return jsonArrayToList(json, Boolean.class);
+	public void laadJson() {
+		
+		try (BufferedReader br = Files.newBufferedReader(LoadJson.getPath("api_start2"))) {
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail();
+		}
 	}
 }
