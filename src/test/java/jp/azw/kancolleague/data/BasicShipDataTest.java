@@ -3,7 +3,6 @@ package jp.azw.kancolleague.data;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 
-import java.util.Map;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,12 +30,5 @@ public class BasicShipDataTest {
 		}
 	}
 
-	@Test
-	public void test_loadbuilder() {
-		Map<Integer, BasicShipData> map = BasicShipData.buildMap(apiStart2);
-		map.forEach((i, data) -> {
-//			System.out.println(i);
-			assertThat(i, is(allOf(equalTo(data.getId()), equalTo(data.getShipGraph().getId()))));
-		});
-	}
+
 }

@@ -1,5 +1,9 @@
 package jp.azw.kancolleague.data;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.IntStream;
@@ -9,8 +13,13 @@ import org.json.JSONObject;
 
 
 public class ConstrDock extends ArrayList<ConstrDock.ConstrDockValue> {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7201853825915373673L;
+
 	public enum State {
-		EMPTY(0), UNKNOWN(-1);
+		UNRELEASED(-1), EMPTY(0), CONSTRUTING (2), FINISHED(3),UNKNOWN(0x8000_0000);
 		int value;
 
 		private State(int value) {
@@ -77,6 +86,39 @@ public class ConstrDock extends ArrayList<ConstrDock.ConstrDockValue> {
 		 */
 		public int getShipId() {
 			return apiData.getInt("api_created_ship_id");
+		}
+		
+		public ZonedDateTime completeTime(){
+			long time = completeTimeLong();
+			return time == 0 ? null : ZonedDateTime.of(LocalDateTime.ofEpochSecond(time, 0, ZoneOffset.ofHours(9)), ZoneId.of("Asia/Tokyo"));
+		}
+		
+		public long completeTimeLong() {
+			return apiData.getLong("api_complete_time");
+		}
+		
+		public String completeTimeStr (){
+			return apiData.getString("api_complete_time_str");
+		}
+		
+		public int getUsedFuel() {
+			return apiData.getInt("api_item1");
+		}
+
+		public int getUsedAmmo() {
+			return apiData.getInt("api_item2");
+		}
+
+		public int getUsedSteel() {
+			return apiData.getInt("api_item3");
+		}
+
+		public int getUsedBauxite() {
+			return apiData.getInt("api_item4");
+		}
+
+		public int getUsedMaterial() {
+			return apiData.getInt("api_item5");
 		}
 	}
 }

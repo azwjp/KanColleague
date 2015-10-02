@@ -1,12 +1,5 @@
 package jp.azw.kancolleague;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -32,12 +25,4 @@ public class Util {
 		return list;
 	}
 	
-	public void laadJson() {
-		
-		try (BufferedReader br = Files.newBufferedReader(LoadJson.getPath("api_start2"))) {
-		} catch (IOException e) {
-			e.printStackTrace();
-			fail();
-		}
-	}
 }

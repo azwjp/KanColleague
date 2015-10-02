@@ -1,8 +1,7 @@
 package jp.azw.kancolleague.data;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +23,24 @@ import jp.azw.kancolleague.util.Range;
  *
  */
 public class BasicShipData {
+	public enum VoiceF {
+		NONE (0), LEAVING(1), TIMESIGNAL(2), FULL(3), UNKNOWN(-1);
+		int value;
+
+		private VoiceF(int value) {
+			this.value = value;
+		}
+
+		public int getValue() {
+			return value;
+		}
+
+		public static VoiceF getState(int value) {
+			return Arrays.stream(values()).filter(state -> {
+				return state.getValue() == value;
+			}).findAny().orElse(UNKNOWN);
+		}
+	}
 	private Optional<Integer> remodelAmmo; // api_after_bull 次の改造に必要な弾薬
 	private Optional<Integer> remodelFuel; // api_after_fuel 改造に必要な燃料
 	private Optional<Integer> remodelLv; // api_after_lv 改造レベル
@@ -56,7 +73,6 @@ public class BasicShipData {
 
 	private boolean isFriend;
 
-	private ShipGraph shipGraph;
 
 	public BasicShipData(JSONObject apiStart2, int index) {
 		JSONObject apiMstShip = apiStart2.getJSONObject("api_data").getJSONArray("api_mst_ship").getJSONObject(index);
@@ -298,10 +314,6 @@ public class BasicShipData {
 		return hp;
 	}
 
-	public ShipGraph getShipGraph() {
-		return shipGraph;
-	}
-
 	public boolean isFriend() {
 		return isFriend;
 	}
@@ -417,9 +429,13 @@ public class BasicShipData {
 	public void setFriend(boolean isFriend) {
 		this.isFriend = isFriend;
 	}
-
-	public void setShipGraph(ShipGraph shipGraph) {
-		this.shipGraph = shipGraph;
+	
+	public VoiceF getVoiceTypeEnum() {
+		return VoiceF.getState(getVoiceType().orElse(-1));
+	}
+	
+	public void setVoiceTypeEnum (VoiceF voicef) {
+		setVoiceType(Optional.of(voicef.getValue()));
 	}
 
 	/**
@@ -437,36 +453,4 @@ public class BasicShipData {
 		return list;
 	}
 
-	/**
-	 * api_start2 のデータを利用して Map を作成します。 Map のキーは api_id のデータです。 ShipGraph
-	 * のデータも含みます。
-	 * 
-	 * @param apiStart2
-	 * @return ConcurrentHashMap
-	 */
-	public static Map<Integer, BasicShipData> buildMap(JSONObject apiStart2) {
-		/* api_mst_ship */
-		JSONArray apiMstShips = apiStart2.getJSONObject("api_data").getJSONArray("api_mst_ship");
-		Map<Integer, BasicShipData> map = new ConcurrentHashMap<>();
-		IntStream.range(0, apiMstShips.length()).parallel().forEach(i -> {
-			BasicShipData bsd = new BasicShipData(apiStart2, i);
-			map.put(bsd.getId(), bsd);
-		});
-
-		/* api_mst_shipgraph */
-		List<ShipGraph> graphs = ShipGraph.buildList(apiStart2);
-		graphs.parallelStream().forEach(graph -> {
-			int id = graph.getId();
-			if(map.containsKey(id)) {
-				map.get(id).setShipGraph(graph);
-			} else {
-				BasicShipData data = new BasicShipData();
-				data.setId(id);
-				data.setShipGraph(graph);
-				map.put(id, data);
-			}
-		});
-
-		return map;
-	}
 }
