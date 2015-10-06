@@ -4,16 +4,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import jp.azw.kancolleague.Util;
 import jp.azw.kancolleague.util.Range;
+import jp.azw.kancolleague.util.Util;
 
 /**
  * api_start2 中の api_mst_ships 部分のデータを格納<br />

@@ -1,4 +1,4 @@
-package jp.azw.kancolleague;
+package jp.azw.kancolleague.util;
 
 import java.util.ArrayList;
 import java.util.List;
