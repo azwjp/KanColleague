@@ -15,7 +15,26 @@ import org.json.JSONObject;
 public class ConstrDockValue {
 
 	public enum State {
-		UNRELEASED(-1), EMPTY(0), CONSTRUTING(2), FINISHED(3), UNKNOWN(0x8000_0000);
+		/**
+		 * ドック未解放
+		 */
+		UNRELEASED(-1),
+		/**
+		 * ドック未使用
+		 */
+		EMPTY(0),
+		/**
+		 * 建造中
+		 */
+		CONSTRUTING(2),
+		/**
+		 * 建造完了
+		 */
+		FINISHED(3),
+		/**
+		 * 知らない数字が送られてきた場合
+		 */
+		UNKNOWN(0x8000_0000);
 		int value;
 
 		private State(int value) {
@@ -27,9 +46,7 @@ public class ConstrDockValue {
 		}
 
 		public static State getState(int value) {
-			return Arrays.stream(values()).filter(state -> {
-				return state.getValue() == value;
-			}).findAny().orElse(UNKNOWN);
+			return Arrays.stream(values()).parallel().filter(state -> state.getValue() == value ).findAny().orElse(UNKNOWN);
 		}
 	}
 
@@ -59,12 +76,21 @@ public class ConstrDockValue {
 	}
 
 	/**
-	 * 建造状態
+	 * 建造状態を元々の数字で返す
 	 * 
 	 * @return
 	 */
 	public int getStateNum() {
 		return apiData.getInt("api_created_ship_id");
+	}
+	
+	/**
+	 * 建造状態を {@link State} で返す。
+	 * 
+	 * @return
+	 */
+	public State getState() {
+		return State.getState(apiData.getInt("api_created_ship_id"));
 	}
 
 	/**

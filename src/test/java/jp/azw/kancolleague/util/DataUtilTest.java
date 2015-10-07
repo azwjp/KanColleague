@@ -29,7 +29,6 @@ public class DataUtilTest {
 	public void test_loadbuilder() {
 		Map<Integer, Pair<Optional<BasicShipData>, Optional<ShipGraph>>> map = DataUtil.joinShipGraph(BasicShipData.buildList(apiStart2), ShipGraph.buildList(apiStart2));
 		map.forEach((i, pair) -> {
-			System.out.println(i);
 			pair.getLeft().ifPresent(data -> assertThat(i, is(data.getId())));
 			pair.getRight().ifPresent(data -> assertThat(i, is(data.getId())));
 		});

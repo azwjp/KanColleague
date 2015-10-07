@@ -2,8 +2,10 @@ package jp.azw.kancolleague.data;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -437,18 +439,32 @@ public class BasicShipData {
 	}
 
 	/**
-	 * api_start2 のデータを利用して List を作成します。 index と id は一致していません。 順序に保証はありません。 List
-	 * は LinkedList を使用しています。 ShipGraph は null です。
+	 * api_start2 のデータを利用して {@link List} を作成します。 index と id は一致していません。 順序に保証はありません。
 	 * 
 	 * @param apiStart2
-	 * @return LinkedList
+	 * @return {@link LinkedList}, synchronizedList
 	 */
 	public static List<BasicShipData> buildList(JSONObject apiStart2) {
-		/* api_mst_ship */
 		JSONArray apiMstShips = apiStart2.getJSONObject("api_data").getJSONArray("api_mst_ship");
 		List<BasicShipData> list = Collections.synchronizedList(new LinkedList<>());
 		IntStream.range(0, apiMstShips.length()).parallel().forEach(i -> list.add(new BasicShipData(apiStart2, i)));
 		return list;
+	}
+	
+	/**
+	 * apiStart2 のデータを利用して {@link Map} を作成します。
+	 * 
+	 * @param apiStart2
+	 * @return {@link HashMap}: (key, value) = (api_id, <code>BasicShipData</code>), synchronizedMap
+	 */
+	public static Map<Integer, BasicShipData> buildMap(JSONObject apiStart2) {
+		JSONArray apiMstShips = apiStart2.getJSONObject("api_data").getJSONArray("api_mst_ship");
+		Map<Integer, BasicShipData> map = Collections.synchronizedMap(new HashMap<>());
+		IntStream.range(0, apiMstShips.length()).parallel().forEach(i -> {
+			BasicShipData ship = new BasicShipData(apiStart2, i);
+			map.put(ship.getId(), ship);
+		});
+		return map;
 	}
 
 }

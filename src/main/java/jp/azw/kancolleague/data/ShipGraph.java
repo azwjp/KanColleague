@@ -60,15 +60,13 @@ public class ShipGraph {
 	public static List<ShipGraph> buildList(JSONObject apiStart2) {
 		JSONArray apiMstShipgraphs = apiStart2.getJSONObject("api_data").getJSONArray("api_mst_shipgraph");
 		List<ShipGraph> list = Collections.synchronizedList(new LinkedList<>());
-		IntStream.range(0, apiMstShipgraphs.length()).parallel().forEach(i -> 
-		{list.add(new ShipGraph(apiStart2, i));}
-		);
+		IntStream.range(0, apiMstShipgraphs.length()).parallel().forEach(i -> list.add(new ShipGraph(apiStart2, i)));
 		return list;
 	}
 	
 	public static Map<Integer, ShipGraph> buildMap(JSONObject apiStart2) {
 		JSONArray apiMstShipgraphs = apiStart2.getJSONObject("api_data").getJSONArray("api_mst_shipgraph");
-		Map<Integer, ShipGraph> map = new HashMap<>();
+		Map<Integer, ShipGraph> map = Collections.synchronizedMap(new HashMap<>());
 		IntStream.range(0, apiMstShipgraphs.length()).parallel().forEach(i -> {
 			ShipGraph graph = new ShipGraph(apiStart2, i);
 			map.put(graph.getId(), graph);
