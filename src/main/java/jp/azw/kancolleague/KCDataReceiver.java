@@ -14,11 +14,11 @@ public class KCDataReceiver {
 	}
 
 	public void setDataHandler(DataChangedHandler dataHandler) {
-		this.dataHandler = dataHandler != null ? dataHandler : new DataChangedHandler.EmptyHandler();
+		this.dataHandler = dataHandler != null ? dataHandler : DataChangedHandler.createEmptyHandler();
 	}
 
 	public void setJsonHandler(JsonEventHandler jsonHandler) {
-		this.jsonHandler = jsonHandler != null ? jsonHandler : new JsonEventHandler.EmptyHandler();
+		this.jsonHandler = jsonHandler != null ? jsonHandler : JsonEventHandler.createEmptyHandler();
 	}
 
 	public void onReceive(KCJsonType type, JSONObject json) {
@@ -34,8 +34,8 @@ public class KCDataReceiver {
 	}
 
 	public KCDataReceiver reset() {
-		dataHandler = new DataChangedHandler.EmptyHandler();
-		jsonHandler = new JsonEventHandler.EmptyHandler();
+		dataHandler = DataChangedHandler.createEmptyHandler();
+		jsonHandler = JsonEventHandler.createEmptyHandler();
 		return this;
 	}
 
