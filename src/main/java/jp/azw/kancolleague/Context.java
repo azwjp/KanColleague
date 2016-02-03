@@ -14,47 +14,45 @@ public class Context {
 	ServerConnector connector;
 
 	public Context create() {
-		server = new Server();
-		connector = new ServerConnector(server);
+		connector = new ServerConnector(server = new Server());
 		connector.setPort(port);
 		server.addConnector(connector);
 
-        HandlerCollection handlers = new HandlerCollection();
-        server.setHandler(handlers);
-        
+		HandlerCollection handlers = new HandlerCollection();
+		server.setHandler(handlers);
+
 		// proxy servlet
 		ServletContextHandler context = new ServletContextHandler(handlers, "/", ServletContextHandler.SESSIONS);
 		servlet = KCProxyServlet.instance();
-		ServletHolder proxyServlet = new ServletHolder(servlet);
-		context.addServlet(proxyServlet, "/*");
-		
+		context.addServlet(new ServletHolder(servlet), "/*");
+
 		// proxy handler (CONNECT method)
 		// for HTTPS
-		ConnectHandler proxy = new ConnectHandler();
-		handlers.addHandler(proxy);
-		
+		handlers.addHandler(new ConnectHandler());
+
 		return this;
 	}
-	
-	public Context start() throws Exception{
+
+	public Context start() throws Exception {
 		if (server == null) {
 			create();
 		}
-		
+
 		server.start();
-		server.join();
-		
+		// server.join();
+
 		return this;
 	}
-	
+
 	public Context stop() throws Exception {
 		if (server != null) {
 			server.stop();
+			server.join();
 		}
-		
+
 		return this;
 	}
-	
+
 	/**
 	 * ポート番号をセットする。
 	 * 
@@ -62,7 +60,7 @@ public class Context {
 	 * @return
 	 */
 	public Context setPort(int port) {
-		//TODO ServerConnector の setPort でちゃんと変わるか確かめる
+		// TODO ServerConnector の setPort でちゃんと変わるか確かめる
 		// {@link #create()} するまで変わらないのかどうか。
 		this.port = port;
 		if (connector != null) {
@@ -70,11 +68,11 @@ public class Context {
 		}
 		return this;
 	}
-	
+
 	public int getPort() {
 		return port;
 	}
-	
+
 	public KCDataReceiver getDataReceiver() {
 		return servlet.getDataReceiver();
 	}

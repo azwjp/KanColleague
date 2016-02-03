@@ -4,7 +4,9 @@ import java.util.Arrays;
 
 public enum KCJsonType {
 	API_START2("/kcsapi/api_start2"),
-	UNKNOWN("");
+	UNKNOWN(""),
+	NON_KC(""),
+	;
 	
 	private String uri;
 	
@@ -17,6 +19,6 @@ public enum KCJsonType {
 	}
 	
 	public static KCJsonType detect(String uri) {
-		return Arrays.stream(KCJsonType.values()).parallel().filter(type -> type.getUri().equals(uri)).findAny().orElse(UNKNOWN);
+		return Arrays.stream(KCJsonType.values()).parallel().filter(type -> type != NON_KC).filter(type -> type.getUri().equals(uri)).findAny().orElse(UNKNOWN);
 	}
 }

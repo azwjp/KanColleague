@@ -318,124 +318,153 @@ public class BasicShipData {
 		return isFriend;
 	}
 
-	public void setRemodelAmmo(Optional<Integer> remodelAmmo) {
-		this.remodelAmmo = remodelAmmo;
+	public BasicShipData setRemodelAmmo(Integer remodelAmmo) {
+		this.remodelAmmo = Optional.ofNullable(remodelAmmo);
+		return this;
 	}
 
-	public void setRemodelFuel(Optional<Integer> remodelFuel) {
-		this.remodelFuel = remodelFuel;
+	public BasicShipData setRemodelFuel(Integer remodelFuel) {
+		this.remodelFuel = Optional.ofNullable(remodelFuel);
+		return this;
 	}
 
-	public void setRemodelLv(Optional<Integer> remodelLv) {
-		this.remodelLv = remodelLv;
+	public BasicShipData setRemodelLv(Integer remodelLv) {
+		this.remodelLv = Optional.ofNullable(remodelLv);
+		return this;
 	}
 
-	public void setRemodeledShipid(Optional<Integer> remodeledShipid) {
-		this.remodeledShipid = remodeledShipid;
+	public BasicShipData setRemodeledShipid(Integer remodeledShipid) {
+		this.remodeledShipid = Optional.ofNullable(remodeledShipid);
+		return this;
 	}
 
-	public void setId(int id) {
+	public BasicShipData setId(int id) {
 		this.id = id;
+		return this;
 	}
 
-	public void setBackground(Optional<Integer> background) {
-		this.background = background;
+	public BasicShipData setBackground(Integer background) {
+		this.background = Optional.ofNullable(background);
+		return this;
 	}
 
-	public void setScrapValue(Optional<List<Integer>> scrapValue) {
-		this.scrapValue = scrapValue;
+	public BasicShipData setScrapValue(List<Integer> scrapValue) {
+		this.scrapValue = Optional.ofNullable(scrapValue);
+		return this;
 	}
 
-	public void setTimeToBuild(Optional<Integer> timeToBuild) {
-		this.timeToBuild = timeToBuild;
+	public BasicShipData setTimeToBuild(Integer timeToBuild) {
+		this.timeToBuild = Optional.ofNullable(timeToBuild);
+		return this;
 	}
 
-	public void setAmmoConsumption(Optional<Integer> ammoConsumption) {
-		this.ammoConsumption = ammoConsumption;
+	public BasicShipData setAmmoConsumption(Integer ammoConsumption) {
+		this.ammoConsumption = Optional.ofNullable(ammoConsumption);
+		return this;
 	}
 
-	public void setFuelConsumption(Optional<Integer> fuelConsumption) {
-		this.fuelConsumption = fuelConsumption;
+	public BasicShipData setFuelConsumption(Integer fuelConsumption) {
+		this.fuelConsumption = Optional.ofNullable(fuelConsumption);
+		return this;
 	}
 
-	public void setGettingMessage(Optional<String> gettingMessage) {
-		this.gettingMessage = gettingMessage;
+	public BasicShipData setGettingMessage(String gettingMessage) {
+		this.gettingMessage = Optional.ofNullable(gettingMessage);
+		return this;
 	}
 
-	public void setRange(Optional<Integer> range) {
-		this.range = range;
+	public BasicShipData setRange(Integer range) {
+		this.range = Optional.ofNullable(range);
+		return this;
 	}
 
-	public void setPlaneSpace(Optional<List<Integer>> planeSpace) {
-		this.planeSpace = planeSpace;
+	public BasicShipData setPlaneSpace(List<Integer> planeSpace) {
+		this.planeSpace = Optional.ofNullable(planeSpace);
+		return this;
 	}
 
-	public void setName(Optional<String> name) {
-		this.name = name;
+	public BasicShipData setName(String name) {
+		this.name = Optional.ofNullable(name);
+		return this;
 	}
 
-	public void setModernization(Optional<List<Integer>> modernization) {
-		this.modernization = modernization;
+	public BasicShipData setModernization(List<Integer> modernization) {
+		this.modernization = Optional.ofNullable(modernization);
+		return this;
 	}
 
-	public void setSlotSize(Optional<Integer> slotSize) {
-		this.slotSize = slotSize;
+	public BasicShipData setSlotSize(Integer slotSize) {
+		this.slotSize = Optional.ofNullable(slotSize);
+		return this;
 	}
 
-	public void setSpeed(Optional<Integer> speed) {
-		this.speed = speed;
+	public BasicShipData setSpeed(Integer speed) {
+		this.speed = Optional.ofNullable(speed);
+		return this;
 	}
 
-	public void setSortNo(Optional<Integer> sortNo) {
-		this.sortNo = sortNo;
+	public BasicShipData setSortNo(Integer sortNo) {
+		this.sortNo = Optional.ofNullable(sortNo);
+		return this;
 	}
 
-	public void setShipType(Optional<Integer> shipType) {
-		this.shipType = shipType;
+	public BasicShipData setShipType(Integer shipType) {
+		this.shipType = Optional.ofNullable(shipType);
+		return this;
 	}
 
-	public void setVoiceType(Optional<Integer> voiceType) {
-		this.voiceType = voiceType;
+	public BasicShipData setVoiceType(Integer voiceType) {
+		this.voiceType = Optional.ofNullable(voiceType);
+		return this;
 	}
 
-	public void setYomi(Optional<String> yomi) {
-		this.yomi = yomi;
+	public BasicShipData setYomi(String yomi) {
+		this.yomi = Optional.ofNullable(yomi);
+		return this;
 	}
 
-	public void setFirepower(Optional<Range<Integer>> firepower) {
-		this.firepower = firepower;
+	public BasicShipData setFirepower(Range<Integer> firepower) {
+		this.firepower = Optional.ofNullable(firepower);
+		return this;
 	}
 
-	public void setTorpedo(Optional<Range<Integer>> torpedo) {
-		this.torpedo = torpedo;
+	public BasicShipData setTorpedo(Range<Integer> torpedo) {
+		this.torpedo = Optional.ofNullable(torpedo);
+		return this;
 	}
 
-	public void setAntiAir(Optional<Range<Integer>> antiAir) {
-		this.antiAir = antiAir;
+	public BasicShipData setAntiAir(Range<Integer> antiAir) {
+		this.antiAir = Optional.ofNullable(antiAir);
+		return this;
 	}
 
-	public void setArmor(Optional<Range<Integer>> armor) {
-		this.armor = armor;
+	public BasicShipData setArmor(Range<Integer> armor) {
+		this.armor = Optional.ofNullable(armor);
+		return this;
 	}
 
-	public void setLuck(Optional<Range<Integer>> luck) {
-		this.luck = luck;
+	public BasicShipData setLuck(Range<Integer> luck) {
+		this.luck = Optional.ofNullable(luck);
+		return this;
 	}
 
-	public void setHp(Optional<Range<Integer>> hp) {
-		this.hp = hp;
+	public BasicShipData setHp(Range<Integer> hp) {
+		this.hp = Optional.ofNullable(hp);
+		return this;
 	}
 
-	public void setFriend(boolean isFriend) {
+	public BasicShipData setFriend(boolean isFriend) {
 		this.isFriend = isFriend;
+		return this;
 	}
 	
 	public VoiceF getVoiceTypeEnum() {
 		return VoiceF.getState(getVoiceType().orElse(-1));
 	}
 	
-	public void setVoiceTypeEnum (VoiceF voicef) {
-		setVoiceType(Optional.of(voicef.getValue()));
+	public BasicShipData setVoiceTypeEnum (VoiceF voicef) {
+		setVoiceType(voicef == null ? null : voicef.getValue());
+		return this;
 	}
 
 	/**

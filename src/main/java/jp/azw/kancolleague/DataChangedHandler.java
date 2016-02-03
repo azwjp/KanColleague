@@ -9,9 +9,11 @@ import jp.azw.kancolleague.data.ShipGraph;
 public interface DataChangedHandler {
 	default public void apiBasic(ApiBasic apiBasic) {}
 
-	default public void basicShipData(List<BasicShipData> basicShipDatas) {};
+	default public void basicShipData(List<BasicShipData> basicShipDatas) {}
 	
-	default public void shipGraph(List<ShipGraph> buildList) {};
+	default public void shipGraph(List<ShipGraph> buildList) {} 
+	
+	default public void unknown(String uri) {}
 	
 	public static DataChangedHandler createEmptyHandler() {
 		return new DataChangedHandler() {};
