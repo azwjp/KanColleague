@@ -1,6 +1,18 @@
+/defaultjson/
+*.json
+/bin/
+*.log
 /target/
+
+# Eclipse
 .classpath
 .project
 .settings
+
+# Gradle
+.gradle
+!gradle-wrapper.jar
+
+# OS
+Thumbs.db
 .DS_Store
-*.log

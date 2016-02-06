@@ -1,11 +1,8 @@
 package jp.azw.kancolleague;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
-import java.util.Optional;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,10 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.client.api.Response;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.proxy.ProxyServlet;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
-import jp.azw.kancolleague.util.KCJsonType;
 
 class KCProxyServlet extends ProxyServlet {
 
