@@ -1,5 +1,8 @@
 package jp.azw.kancolleague;
 
+import java.util.Optional;
+
+import org.eclipse.jetty.client.api.ProxyConfiguration;
 import org.eclipse.jetty.proxy.ConnectHandler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -7,11 +10,14 @@ import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-public class Context {
+public class Context{
 	private Server server;
 	private int port;
 	private KCProxyServlet servlet;
 	private ServerConnector connector;
+	private KCDataReceiver dataReceiver = KCDataReceiver.instance();
+	private Optional<ProxyConfiguration> proxyConfiguration = Optional.empty();
+	private boolean allAccess = false;
 	
 	private Context () {
 		
@@ -27,7 +33,7 @@ public class Context {
 
 		// proxy servlet
 		ServletContextHandler context = new ServletContextHandler(handlers, "/", ServletContextHandler.SESSIONS);
-		servlet = KCProxyServlet.instance();
+		servlet = KCProxyServlet.instance(dataReceiver);
 		context.addServlet(new ServletHolder(servlet), "/*");
 
 		// proxy handler (CONNECT method)
@@ -43,7 +49,7 @@ public class Context {
 		}
 
 		server.start();
-		// server.join();
+		server.join();
 
 		return this;
 	}
@@ -56,9 +62,34 @@ public class Context {
 
 		return this;
 	}
+	
+	/**
+	 * インターネット側 (艦これ側) のプロキシを設定する。解除するときは  {@link #unsetProxy()} で。
+	 * 
+	 * @param host null か 空 ("") の場合は "localhost"
+	 * @param port
+	 * @return
+	 */
+	public Context setProxy(String host, int port) {
+		if (host == null || host.isEmpty()) {
+			host = "localhost";
+		}
+		proxyConfiguration = Optional.of(new ProxyConfiguration(host, port));
+		return refleshServletSetting();
+	}
+	
+	/**
+	 * インターネット側 (艦これ側) のプロキシを解除する。
+	 * 
+	 * @return
+	 */
+	public Context unsetProxy() {
+		proxyConfiguration = Optional.empty();
+		return refleshServletSetting();
+	}
 
 	/**
-	 * ポート番号をセットする。
+	 * 受信側 (ローカル側、ブラウザ側) のポート番号をセットする。
 	 * 
 	 * @param port
 	 * @return
@@ -78,10 +109,17 @@ public class Context {
 	}
 
 	public KCDataReceiver getDataReceiver() {
-		return servlet.getDataReceiver();
+		return dataReceiver;
 	}
 	
 	public static Context instance(int port) {
 		return new Context().setPort(port).create();
+	}
+	
+	private Context refleshServletSetting() {
+		if (servlet != null) {
+			servlet.setDataReceiver(dataReceiver).setProxy(proxyConfiguration).setAllAccess(allAccess);
+		}
+		return this;
 	}
 }

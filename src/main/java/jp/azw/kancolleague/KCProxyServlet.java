@@ -3,10 +3,14 @@ package jp.azw.kancolleague;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Optional;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.ProxyConfiguration;
 import org.eclipse.jetty.client.api.Response;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.proxy.ProxyServlet;
@@ -16,6 +20,8 @@ class KCProxyServlet extends ProxyServlet {
 	private static final long serialVersionUID = -5197951173756399184L;
 	public static final String RESPONSE = "response";
 	private KCDataReceiver dataReceiver;
+
+	private Optional<ProxyConfiguration> proxyConfiguration = Optional.empty();
 
 	private boolean allAccess = false;
 
@@ -55,6 +61,26 @@ class KCProxyServlet extends ProxyServlet {
 
 		super.onResponseSuccess(request, response, proxyResponse);
 	}
+	
+	/* Proxy */
+	/**
+	 * インターネット側 (艦これ側) のプロキシを設定する。
+	 * 
+	 * @return
+	 */
+	public KCProxyServlet setProxy(Optional<ProxyConfiguration> proxyConfiguration) {
+		this.proxyConfiguration = proxyConfiguration;
+		return this;
+	}
+	
+	@Override
+	protected HttpClient createHttpClient() throws ServletException {
+		HttpClient client = super.createHttpClient();
+		proxyConfiguration.ifPresent(conf -> client.setProxyConfiguration(conf));
+		return client;
+	};
+	
+	
 
 	public KCProxyServlet setAllAccess(boolean isAllowed) {
 		allAccess = isAllowed;
@@ -65,18 +91,12 @@ class KCProxyServlet extends ProxyServlet {
 		return allAccess;
 	}
 
-
-
-	public KCDataReceiver getDataReceiver() {
-		return dataReceiver;
-	}
-
-	private KCProxyServlet setDataReceiver(KCDataReceiver dataReceiver) {
+	public KCProxyServlet setDataReceiver(KCDataReceiver dataReceiver) {
 		this.dataReceiver = dataReceiver;
 		return this;
 	}
 
-	public static KCProxyServlet instance() {
-		return new KCProxyServlet().setDataReceiver(KCDataReceiver.instance());
+	public static KCProxyServlet instance(KCDataReceiver dataReceiver) {
+		return new KCProxyServlet().setDataReceiver(dataReceiver);
 	}
 }
