@@ -9,10 +9,14 @@ import org.eclipse.jetty.servlet.ServletHolder;
 
 public class Context {
 	private Server server;
-	private int port = 8800;
+	private int port;
 	private KCProxyServlet servlet;
-	ServerConnector connector;
-
+	private ServerConnector connector;
+	
+	private Context () {
+		
+	}
+ 
 	public Context create() {
 		connector = new ServerConnector(server = new Server());
 		connector.setPort(port);
@@ -75,5 +79,9 @@ public class Context {
 
 	public KCDataReceiver getDataReceiver() {
 		return servlet.getDataReceiver();
+	}
+	
+	public static Context instance(int port) {
+		return new Context().setPort(port).create();
 	}
 }
