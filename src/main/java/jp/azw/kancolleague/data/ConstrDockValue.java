@@ -7,10 +7,9 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 public class ConstrDockValue {
 
@@ -50,9 +49,9 @@ public class ConstrDockValue {
 		}
 	}
 
-	private JSONObject apiData;
+	private JsonObject apiData;
 
-	public ConstrDockValue(JSONObject apiData) {
+	public ConstrDockValue(JsonObject apiData) {
 		this.apiData = apiData;
 	}
 
@@ -63,7 +62,7 @@ public class ConstrDockValue {
 	 * @return api_member_id
 	 */
 	public int getMemberId() {
-		return apiData.getInt("api_member_id");
+		return apiData.get("api_member_id").getAsInt();
 	}
 
 	/**
@@ -72,7 +71,7 @@ public class ConstrDockValue {
 	 * @return api_id
 	 */
 	public int getId() {
-		return apiData.getInt("api_id");
+		return apiData.get("api_id").getAsInt();
 	}
 
 	/**
@@ -81,7 +80,7 @@ public class ConstrDockValue {
 	 * @return
 	 */
 	public int getStateNum() {
-		return apiData.getInt("api_created_ship_id");
+		return apiData.get("api_created_ship_id").getAsInt();
 	}
 	
 	/**
@@ -90,7 +89,7 @@ public class ConstrDockValue {
 	 * @return
 	 */
 	public State getState() {
-		return State.getState(apiData.getInt("api_created_ship_id"));
+		return State.getState(apiData.get("api_created_ship_id").getAsInt());
 	}
 
 	/**
@@ -99,7 +98,7 @@ public class ConstrDockValue {
 	 * @return
 	 */
 	public int getShipId() {
-		return apiData.getInt("api_created_ship_id");
+		return apiData.get("api_created_ship_id").getAsInt();
 	}
 
 	public ZonedDateTime completeTime() {
@@ -110,37 +109,36 @@ public class ConstrDockValue {
 	}
 
 	public long completeTimeLong() {
-		return apiData.getLong("api_complete_time");
+		return apiData.get("api_complete_time").getAsLong();
 	}
 
 	public String completeTimeStr() {
-		return apiData.getString("api_complete_time_str");
+		return apiData.get("api_complete_time_str").getAsString();
 	}
 
 	public int getUsedFuel() {
-		return apiData.getInt("api_item1");
+		return apiData.get("api_item1").getAsInt();
 	}
 
 	public int getUsedAmmo() {
-		return apiData.getInt("api_item2");
+		return apiData.get("api_item2").getAsInt();
 	}
 
 	public int getUsedSteel() {
-		return apiData.getInt("api_item3");
+		return apiData.get("api_item3").getAsInt();
 	}
 
 	public int getUsedBauxite() {
-		return apiData.getInt("api_item4");
+		return apiData.get("api_item4").getAsInt();
 	}
 
 	public int getUsedMaterial() {
-		return apiData.getInt("api_item5");
+		return apiData.get("api_item5").getAsInt();
 	}
 	
-	public static List<ConstrDockValue> getConstrDock(JSONObject kDock) {
+	public static List<ConstrDockValue> getConstrDock(JsonObject kDock) {
 		List<ConstrDockValue> list = new ArrayList<>();
-		JSONArray apiData = kDock.getJSONArray("api_data");
-		IntStream.range(0, apiData.length()).forEach(i -> list.add(new ConstrDockValue(apiData.getJSONObject(i))));
+		StreamSupport.stream(kDock.get("api_data").getAsJsonArray().spliterator(), false).map(apiData -> new ConstrDockValue(apiData.getAsJsonObject())).forEach(e -> list.add(e));
 		return list;
 	}
 }

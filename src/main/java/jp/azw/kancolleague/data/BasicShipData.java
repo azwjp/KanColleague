@@ -7,12 +7,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import jp.azw.kancolleague.util.Range;
+import jp.azw.kancolleague.util.Resource;
 import jp.azw.kancolleague.util.Util;
 
 /**
@@ -41,17 +41,16 @@ public class BasicShipData {
 			}).findAny().orElse(UNKNOWN);
 		}
 	}
-	private Optional<Integer> remodelAmmo; // api_after_bull 次の改造に必要な弾薬
-	private Optional<Integer> remodelFuel; // api_after_fuel 改造に必要な燃料
+	
+	private Optional<Resource> remodel;// api_after_bull 次の改造に必要な弾薬 // api_after_fuel 改造に必要な燃料
 	private Optional<Integer> remodelLv; // api_after_lv 改造レベル
 	private Optional<Integer> remodeledShipid; // api_aftershipid 改造後の艦種
 	private int id; // api_id 管理用 id
 	private Optional<Integer> background; // api_backs 背景
-	private Optional<List<Integer>> scrapValue; // api_broken [4]
+	private Optional<Resource> scrapValue; // api_broken [4]
 												// 解体で出てくる資材。2-4-11
 	private Optional<Integer> timeToBuild; // api_buildtime 建造にかかる時間
-	private Optional<Integer> ammoConsumption; // api_bull_max 弾薬全消費
-	private Optional<Integer> fuelConsumption; // api_fuel_max 燃料全消費
+	private Optional<Resource> consumption; // api_bull_max 弾薬全消費 // api_fuel_max 燃料全消費
 	private Optional<String> gettingMessage; // api_getmes 入手時の台詞
 	private Optional<Integer> range; // api_leng 射程
 	private Optional<List<Integer>> planeSpace; // api_max_eq [5] スロットごとの艦載機数
@@ -74,52 +73,48 @@ public class BasicShipData {
 	private boolean isFriend;
 
 
-	public BasicShipData(JSONObject apiStart2, int index) {
-		JSONObject apiMstShip = apiStart2.getJSONObject("api_data").getJSONArray("api_mst_ship").getJSONObject(index);
-		id = apiMstShip.getInt("api_id");
-		name = Optional.of(apiMstShip.getString("api_name"));
-		speed = Optional.of(apiMstShip.getInt("api_soku"));
-		slotSize = Optional.of(apiMstShip.getInt("api_slot_num"));
-		shipType = Optional.of(apiMstShip.getInt("api_stype"));
-		yomi = Optional.of(apiMstShip.getString("api_yomi"));
-		if (isFriend = apiMstShip.length() == 27) {
-			remodelAmmo = Optional.of(apiMstShip.getInt("api_afterbull"));
-			remodelFuel = Optional.of(apiMstShip.getInt("api_afterfuel"));
-			remodelLv = Optional.of(apiMstShip.getInt("api_afterlv"));
-			remodeledShipid = Optional.of(Integer.valueOf(apiMstShip.getString("api_aftershipid")));
-			background = Optional.of(apiMstShip.getInt("api_backs"));
-			scrapValue = Optional.of(Util.jsonArrayToIntList(apiMstShip.getJSONArray("api_broken")));
-			timeToBuild = Optional.of(apiMstShip.getInt("api_buildtime"));
-			ammoConsumption = Optional.of(apiMstShip.getInt("api_bull_max"));
-			fuelConsumption = Optional.of(apiMstShip.getInt("api_fuel_max"));
-			gettingMessage = Optional.ofNullable(apiMstShip.getString("api_getmes"));
-			range = Optional.of(apiMstShip.getInt("api_leng"));
-			planeSpace = Optional.of(Util.jsonArrayToIntList(apiMstShip.getJSONArray("api_maxeq")));
-			modernization = Optional.of(Util.jsonArrayToIntList(apiMstShip.getJSONArray("api_powup")));
-			sortNo = Optional.of(apiMstShip.getInt("api_sortno"));
-			voiceType = Optional.of(apiMstShip.getInt("api_voicef"));
-			firepower = Optional.of(Range.of(apiMstShip.getJSONArray("api_houg").getInt(0),
-					apiMstShip.getJSONArray("api_houg").getInt(1)));
-			torpedo = Optional.of(Range.of(apiMstShip.getJSONArray("api_houg").getInt(0),
-					apiMstShip.getJSONArray("api_raig").getInt(1)));
-			antiAir = Optional.of(Range.of(apiMstShip.getJSONArray("api_houg").getInt(0),
-					apiMstShip.getJSONArray("api_tyku").getInt(1)));
-			armor = Optional.of(Range.of(apiMstShip.getJSONArray("api_houg").getInt(0),
-					apiMstShip.getJSONArray("api_souk").getInt(1)));
-			luck = Optional.of(Range.of(apiMstShip.getJSONArray("api_houg").getInt(0),
-					apiMstShip.getJSONArray("api_luck").getInt(1)));
-			hp = Optional.of(Range.of(apiMstShip.getJSONArray("api_houg").getInt(0),
-					apiMstShip.getJSONArray("api_taik").getInt(1)));
+	public BasicShipData(JsonObject apiMstShip) {
+		id = apiMstShip.get("api_id").getAsInt();
+		name = Optional.of(apiMstShip.get("api_name").getAsString());
+		speed = Optional.of(apiMstShip.get("api_soku").getAsInt());
+		slotSize = Optional.of(apiMstShip.get("api_slot_num").getAsInt());
+		shipType = Optional.of(apiMstShip.get("api_stype").getAsInt());
+		yomi = Optional.of(apiMstShip.get("api_yomi").getAsString());
+		if (isFriend = apiMstShip.entrySet().size() == 27) {
+			remodel = Optional.of(new Resource(apiMstShip.get("api_afterfuel").getAsInt(), apiMstShip.get("api_afterbull").getAsInt(), 0, 0));
+			remodelLv = Optional.of(apiMstShip.get("api_afterlv").getAsInt());
+			remodeledShipid = Optional.of(apiMstShip.get("api_aftershipid").getAsInt());
+			background = Optional.of(apiMstShip.get("api_backs").getAsInt());
+			JsonArray scrapValues = apiMstShip.get("api_broken").getAsJsonArray();
+			scrapValue = Optional.of(new Resource(scrapValues.get(0).getAsInt(), scrapValues.get(1).getAsInt(), scrapValues.get(2).getAsInt(), scrapValues.get(3).getAsInt()));
+			timeToBuild = Optional.of(apiMstShip.get("api_buildtime").getAsInt());
+			consumption = Optional.of(new Resource(apiMstShip.get("api_fuel_max").getAsInt(), apiMstShip.get("api_bull_max").getAsInt(), 0, 0));
+			gettingMessage = Optional.ofNullable(apiMstShip.get("api_getmes").getAsString());
+			range = Optional.of(apiMstShip.get("api_leng").getAsInt());
+			planeSpace = Optional.of(Util.jsonArrayToIntList(apiMstShip.get("api_maxeq").getAsJsonArray()));
+			modernization = Optional.of(Util.jsonArrayToIntList(apiMstShip.get("api_powup").getAsJsonArray()));
+			sortNo = Optional.of(apiMstShip.get("api_sortno").getAsInt());
+			voiceType = Optional.of(apiMstShip.get("api_voicef").getAsInt());
+			firepower = Optional.of(Range.of(apiMstShip.get("api_houg").getAsJsonArray().get(0).getAsInt(),
+					apiMstShip.get("api_houg").getAsJsonArray().get(1).getAsInt()));
+			torpedo = Optional.of(Range.of(apiMstShip.get("api_raig").getAsJsonArray().get(0).getAsInt(),
+					apiMstShip.get("api_raig").getAsJsonArray().get(1).getAsInt()));
+			antiAir = Optional.of(Range.of(apiMstShip.get("api_tyku").getAsJsonArray().get(0).getAsInt(),
+					apiMstShip.get("api_tyku").getAsJsonArray().get(1).getAsInt()));
+			armor = Optional.of(Range.of(apiMstShip.get("api_souk").getAsJsonArray().get(0).getAsInt(),
+					apiMstShip.get("api_souk").getAsJsonArray().get(1).getAsInt()));
+			luck = Optional.of(Range.of(apiMstShip.get("api_luck").getAsJsonArray().get(0).getAsInt(),
+					apiMstShip.get("api_luck").getAsJsonArray().get(1).getAsInt()));
+			hp = Optional.of(Range.of(apiMstShip.get("api_taik").getAsJsonArray().get(0).getAsInt(),
+					apiMstShip.get("api_taik").getAsJsonArray().get(1).getAsInt()));
 		} else {
-			remodelAmmo = Optional.empty();
-			remodelFuel = Optional.empty();
+			remodel = Optional.empty();
 			remodelLv = Optional.empty();
 			remodeledShipid = Optional.empty();
 			background = Optional.empty();
 			scrapValue = Optional.empty();
 			timeToBuild = Optional.empty();
-			ammoConsumption = Optional.empty();
-			fuelConsumption = Optional.empty();
+			consumption = Optional.empty();
 			gettingMessage = Optional.empty();
 			range = Optional.empty();
 			planeSpace = Optional.empty();
@@ -142,16 +137,13 @@ public class BasicShipData {
 		slotSize = Optional.empty();
 		shipType = Optional.empty();
 		yomi = Optional.empty();
-
-		remodelAmmo = Optional.empty();
-		remodelFuel = Optional.empty();
+		remodel = Optional.empty();
 		remodelLv = Optional.empty();
 		remodeledShipid = Optional.empty();
 		background = Optional.empty();
 		scrapValue = Optional.empty();
 		timeToBuild = Optional.empty();
-		ammoConsumption = Optional.empty();
-		fuelConsumption = Optional.empty();
+		consumption = Optional.empty();
 		gettingMessage = Optional.empty();
 		range = Optional.empty();
 		planeSpace = Optional.empty();
@@ -177,21 +169,13 @@ public class BasicShipData {
 	}
 
 	/**
+	 * 改造に必要な燃料
 	 * 改造に必要な弾薬
 	 * 
-	 * @return api_after_bull
+	 * @return api_after_fuel, api_after_bull, 0, 0
 	 */
-	public Optional<Integer> getRemodelAmmo() {
-		return remodelAmmo;
-	}
-
-	/**
-	 * 改造に必要な燃料
-	 * 
-	 * @return api_after_fuel
-	 */
-	public Optional<Integer> getRemodelFuel() {
-		return remodelFuel;
+	public Optional<Resource> getRemodelResource() {
+		return remodel;
 	}
 
 	/**
@@ -230,7 +214,7 @@ public class BasicShipData {
 		return background;
 	}
 
-	public Optional<List<Integer>> getScrapValue() {
+	public Optional<Resource> getScrapValue() {
 		return scrapValue;
 	}
 
@@ -238,12 +222,8 @@ public class BasicShipData {
 		return timeToBuild;
 	}
 
-	public Optional<Integer> getAmmoConsumption() {
-		return ammoConsumption;
-	}
-
-	public Optional<Integer> getFuelConsumption() {
-		return fuelConsumption;
+	public Optional<Resource> getConsumption() {
+		return consumption;
 	}
 
 	public Optional<String> getGettingMessage() {
@@ -318,13 +298,8 @@ public class BasicShipData {
 		return isFriend;
 	}
 
-	public BasicShipData setRemodelAmmo(Integer remodelAmmo) {
-		this.remodelAmmo = Optional.ofNullable(remodelAmmo);
-		return this;
-	}
-
-	public BasicShipData setRemodelFuel(Integer remodelFuel) {
-		this.remodelFuel = Optional.ofNullable(remodelFuel);
+	public BasicShipData setRemodelResource(Resource remodel) {
+		this.remodel = Optional.ofNullable(remodel);
 		return this;
 	}
 
@@ -348,7 +323,7 @@ public class BasicShipData {
 		return this;
 	}
 
-	public BasicShipData setScrapValue(List<Integer> scrapValue) {
+	public BasicShipData setScrapValue(Resource scrapValue) {
 		this.scrapValue = Optional.ofNullable(scrapValue);
 		return this;
 	}
@@ -358,13 +333,8 @@ public class BasicShipData {
 		return this;
 	}
 
-	public BasicShipData setAmmoConsumption(Integer ammoConsumption) {
-		this.ammoConsumption = Optional.ofNullable(ammoConsumption);
-		return this;
-	}
-
-	public BasicShipData setFuelConsumption(Integer fuelConsumption) {
-		this.fuelConsumption = Optional.ofNullable(fuelConsumption);
+	public BasicShipData setConsumption(Resource consumption) {
+		this.consumption = Optional.ofNullable(consumption);
 		return this;
 	}
 
@@ -473,10 +443,13 @@ public class BasicShipData {
 	 * @param apiStart2
 	 * @return {@link LinkedList}, synchronizedList
 	 */
-	public static List<BasicShipData> buildList(JSONObject apiStart2) {
-		JSONArray apiMstShips = apiStart2.getJSONObject("api_data").getJSONArray("api_mst_ship");
+	public static List<BasicShipData> buildList(JsonObject apiStart2) {
+		JsonArray apiMstShips = apiStart2.get("api_data").getAsJsonObject().get("api_mst_ship").getAsJsonArray();
 		List<BasicShipData> list = Collections.synchronizedList(new LinkedList<>());
-		IntStream.range(0, apiMstShips.length()).parallel().forEach(i -> list.add(new BasicShipData(apiStart2, i)));
+		StreamSupport.stream(apiMstShips.spliterator(), true)
+				.map(ship -> ship.getAsJsonObject())
+				.map(ship -> new BasicShipData(ship))
+				.forEach(bsd -> list.add(bsd));
 		return list;
 	}
 	
@@ -486,13 +459,13 @@ public class BasicShipData {
 	 * @param apiStart2
 	 * @return {@link HashMap}: (key, value) = (api_id, <code>BasicShipData</code>), synchronizedMap
 	 */
-	public static Map<Integer, BasicShipData> buildMap(JSONObject apiStart2) {
-		JSONArray apiMstShips = apiStart2.getJSONObject("api_data").getJSONArray("api_mst_ship");
+	public static Map<Integer, BasicShipData> buildMap(JsonObject apiStart2) {
+		JsonArray apiMstShips = apiStart2.get("api_data").getAsJsonObject().get("api_mst_ship").getAsJsonArray();
 		Map<Integer, BasicShipData> map = Collections.synchronizedMap(new HashMap<>());
-		IntStream.range(0, apiMstShips.length()).parallel().forEach(i -> {
-			BasicShipData ship = new BasicShipData(apiStart2, i);
-			map.put(ship.getId(), ship);
-		});
+		StreamSupport.stream(apiMstShips.spliterator(), true)
+				.map(ship -> ship.getAsJsonObject())
+				.map(ship -> new BasicShipData(ship))
+				.forEach(bsd -> map.put(bsd.getId(), bsd));
 		return map;
 	}
 

@@ -2,27 +2,33 @@ package jp.azw.kancolleague.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-import org.json.JSONArray;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 
 public class Util {
-	public static List<Integer> jsonArrayToIntList (JSONArray json) {
-		List<Integer> list = new ArrayList<>();
-		IntStream.range(0, json.length()).forEach(i -> list.add(json.getInt(i)));
+	
+	private static Stream<JsonElement> pre(JsonArray json) {
+		return StreamSupport.stream(json.spliterator(), false);
+	}
+	
+	private static <T> List<T> post(Stream<T> stream) {
+		List<T> list = new ArrayList<>();
+		stream.forEach(t -> list.add(t));
 		return list;
 	}
 	
-	public static List<String> jsonArrayToStringList (JSONArray json) {
-		List<String> list = new ArrayList<>();
-		IntStream.range(0, json.length()).forEach(i -> list.add(json.getString(i)));
-		return list;
+	public static List<Integer> jsonArrayToIntList (JsonArray json) {
+		return post(pre(json).map(element -> element.getAsInt()));
 	}
 	
-	public static List<Boolean> jsonArrayToBoolList (JSONArray json) {
-		List<Boolean> list = new ArrayList<>();
-		IntStream.range(0, json.length()).forEach(i -> list.add(json.getBoolean(i)));
-		return list;
+	public static List<String> jsonArrayToStringList (JsonArray json) {
+		return post(pre(json).map(element -> element.getAsString()));
 	}
 	
+	public static List<Boolean> jsonArrayToBoolList (JsonArray json) {
+		return post(pre(json).map(element -> element.getAsBoolean()));
+	}	
 }

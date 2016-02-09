@@ -6,20 +6,21 @@ import static org.hamcrest.Matchers.is;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.gson.JsonObject;
 
 import jp.azw.kancolleague.LoadJson;
 
 public class ShipGraphTest {
-	JSONObject apiStart2;
+	JsonObject apiStart2;
 	int length;
 
 	@Before
 	public void setup() {
 		apiStart2 = LoadJson.loadJson("api_start2");
-		length = apiStart2.getJSONObject("api_data").getJSONArray("api_mst_shipgraph").length();
+		length = apiStart2.get("api_data").getAsJsonObject().get("api_mst_shipgraph").getAsJsonArray().size();
 	}
 
 	@Test

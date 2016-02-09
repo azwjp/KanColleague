@@ -7,11 +7,12 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import com.google.gson.JsonObject;
 
 import jp.azw.kancolleague.LoadJson;
 import jp.azw.kancolleague.data.BasicShipData;
@@ -19,7 +20,7 @@ import jp.azw.kancolleague.data.ShipGraph;
 
 @RunWith(JUnit4.class)
 public class DataUtilTest {
-	JSONObject apiStart2;
+	JsonObject apiStart2;
 
 	@Before
 	public void setup() {

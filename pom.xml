@@ -44,15 +44,15 @@
 						</manifest>
 					</archive>
 				</configuration>
-			</plugin> 
+			</plugin>
 		</plugins>
 	</build>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>20141113</version>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>

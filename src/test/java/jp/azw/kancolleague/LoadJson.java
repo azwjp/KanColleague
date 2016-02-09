@@ -7,13 +7,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 
 public class LoadJson {
-	public static JSONObject loadJson (String api) {
-		return new JSONObject(load(api));
+	public static JsonObject loadJson(String api) {
+		return new Gson().fromJson(load(api), JsonObject.class);
 	}
-	
+
 	public static String load(String api) {
 		StringBuilder sb = new StringBuilder();
 		try {
@@ -24,8 +26,9 @@ public class LoadJson {
 		}
 		return sb.toString();
 	}
-	
+
 	public static Path getPath(String api) {
-		return Paths.get(new StringBuilder("defaultjson").append(File.separator).append(api).append(".json").toString());
+		return Paths
+				.get(new StringBuilder("defaultjson").append(File.separator).append(api).append(".json").toString());
 	}
 }

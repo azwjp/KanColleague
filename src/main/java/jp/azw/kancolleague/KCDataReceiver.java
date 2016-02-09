@@ -4,14 +4,16 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.client.api.Response;
-import org.json.JSONObject;
-import org.json.JSONTokener;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import jp.azw.kancolleague.data.BasicShipData;
 import jp.azw.kancolleague.data.ShipGraph;
@@ -45,7 +47,7 @@ public class KCDataReceiver {
 						// 頭の svdata= を削除
 						for (int c = is.read(); c != -1 && c != '='; c = is.read());
 
-						JSONObject json = new JSONObject(new JSONTokener(is));
+						JsonObject json = new Gson().fromJson(new InputStreamReader(is), JsonObject.class);
 						handleJson(request.getRequestURI(), KCJsonType.detect(request.getRequestURI()), json);
 					} catch (IOException e1) {
 						e1.printStackTrace();
@@ -57,7 +59,7 @@ public class KCDataReceiver {
 		}
 	}
 	
-	public void handleJson(String uri, KCJsonType type, JSONObject json) {
+	public void handleJson(String uri, KCJsonType type, JsonObject json) {
 		switch (type) {
 		case API_START2:
 			jsonHandler.apiStart2(json);
