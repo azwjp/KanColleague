@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,8 +16,8 @@ import org.eclipse.jetty.client.api.Response;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import jp.azw.kancolleague.data.BasicShipData;
-import jp.azw.kancolleague.data.ShipGraph;
+import jp.azw.kancolleague.kcapi.BasicShipData;
+import jp.azw.kancolleague.kcapi.ShipGraph;
 import jp.azw.kancolleague.util.KCJsonType;
 
 public class KCDataReceiver {
@@ -48,7 +49,8 @@ public class KCDataReceiver {
 						for (int c = is.read(); c != -1 && c != '='; c = is.read());
 
 						JsonObject json = new Gson().fromJson(new InputStreamReader(is), JsonObject.class);
-						handleJson(request.getRequestURI(), KCJsonType.detect(request.getRequestURI()), json);
+
+						handleJson(request.getRequestURI(), KCJsonType.detect(request.getRequestURI()), json, request.getParameterMap());
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
@@ -59,7 +61,7 @@ public class KCDataReceiver {
 		}
 	}
 	
-	public void handleJson(String uri, KCJsonType type, JsonObject json) {
+	public void handleJson(String uri, KCJsonType type, JsonObject json, Map<String, String[]> parameters) {
 		switch (type) {
 		case API_START2:
 			jsonHandler.apiStart2(json);
@@ -67,8 +69,8 @@ public class KCDataReceiver {
 			dataHandler.shipGraph(ShipGraph.buildList(json));
 			break;
 		case UNKNOWN: // KCJsonType.UNKNOWN
-			jsonHandler.unknown(uri, json);
-			dataHandler.unknown(uri);
+			jsonHandler.unknown(uri, json, parameters);
+			dataHandler.unknown(uri, parameters);
 			break;
 		default:
 			break;

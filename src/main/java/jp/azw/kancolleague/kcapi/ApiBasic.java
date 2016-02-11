@@ -1,4 +1,4 @@
-package jp.azw.kancolleague.data;
+package jp.azw.kancolleague.kcapi;
 
 /**
  * プレイヤー情報。<br />

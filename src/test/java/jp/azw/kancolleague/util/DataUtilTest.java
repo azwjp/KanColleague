@@ -15,8 +15,8 @@ import org.junit.runners.JUnit4;
 import com.google.gson.JsonObject;
 
 import jp.azw.kancolleague.LoadJson;
-import jp.azw.kancolleague.data.BasicShipData;
-import jp.azw.kancolleague.data.ShipGraph;
+import jp.azw.kancolleague.kcapi.BasicShipData;
+import jp.azw.kancolleague.kcapi.ShipGraph;
 
 @RunWith(JUnit4.class)
 public class DataUtilTest {

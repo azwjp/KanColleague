@@ -1,4 +1,4 @@
-package jp.azw.kancolleague.data;
+package jp.azw.kancolleague.kcdata;
 
 
 import static org.hamcrest.MatcherAssert.*;
@@ -6,7 +6,7 @@ import static org.hamcrest.Matchers.*;
 
 import org.junit.Test;
 
-import jp.azw.kancolleague.data.ConstrDockValue.State;
+import jp.azw.kancolleague.kcapi.ConstrDockValue.State;
 
 public class ConstrDockValueTest {
 

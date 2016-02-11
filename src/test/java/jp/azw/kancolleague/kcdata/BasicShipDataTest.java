@@ -1,4 +1,4 @@
-package jp.azw.kancolleague.data;
+package jp.azw.kancolleague.kcdata;
 
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
@@ -15,6 +15,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import jp.azw.kancolleague.LoadJson;
+import jp.azw.kancolleague.kcapi.BasicShipData;
 
 @RunWith(JUnit4.class)
 public class BasicShipDataTest {

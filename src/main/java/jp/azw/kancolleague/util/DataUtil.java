@@ -7,8 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import jp.azw.kancolleague.data.BasicShipData;
-import jp.azw.kancolleague.data.ShipGraph;
+import jp.azw.kancolleague.kcapi.BasicShipData;
+import jp.azw.kancolleague.kcapi.ShipGraph;
 
 public class DataUtil {
 
