@@ -19,11 +19,14 @@ public class LoadJson {
 	public static String load(String api) {
 		StringBuilder sb = new StringBuilder();
 		try {
-			Files.lines(getPath(api), Charset.forName("UTF-8")).forEach(line -> sb.append(line));
+			Files.lines(getPath(api), Charset.forName("UTF-8")).collect(StringBuilder::new, StringBuilder::append, StringBuilder::append);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
 		}
+		while (sb.charAt(0) != '{') {
+			sb.deleteCharAt(0);
+		};
 		return sb.toString();
 	}
 

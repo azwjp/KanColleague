@@ -1,8 +1,8 @@
 package jp.azw.kancolleague.util;
 
+import java.util.Collection;
 import java.util.Iterator;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
 /**
@@ -16,6 +16,9 @@ public class Resource {
 	private int bullet;
 	private int steal;
 	private int bauxite;
+	
+	public Resource() {
+	}
 
 	public Resource(int fuel, int bullet, int steal, int bauxite) {
 		this.fuel = fuel;
@@ -35,7 +38,8 @@ public class Resource {
 	public boolean equals(Object obj) {
 		if (obj instanceof Resource) {
 			Resource res = (Resource) obj;
-			return getFuel() == res.getFuel() && getBullet() == res.getBullet()&& getSteal() == res.getSteal() && getBauxite() == res.getBauxite();
+			return getFuel() == res.getFuel() && getBullet() == res.getBullet() && getSteal() == res.getSteal()
+					&& getBauxite() == res.getBauxite();
 		} else {
 			return false;
 		}
@@ -45,7 +49,62 @@ public class Resource {
 	protected Resource clone() {
 		return new Resource(getFuel(), getBullet(), getSteal(), getBauxite());
 	}
+	
+	/**
+	 * この <code>Resource</code> の値を増加させる。
+	 * @see #sum(Resource)
+	 * @see #subtract(Resource)
+	 * @param adding 増加分
+	 * @return this
+	 */
+	public Resource add(Resource adding) {
+		fuel += adding.getFuel();
+		bullet += adding.getBullet();
+		steal += adding.getSteal();
+		bauxite += adding.getBauxite();
+		return this;
+	}
+	
+	/**
+	 * この <code>Resource</code> の値を増加させる。
+	 * @see #sum(Resource)
+	 * @see #subtract(Resource)
+	 * @param adding 増加分
+	 * @return this
+	 */
+	public Resource addAll(Collection<? extends Resource> addings) {
+		addings.parallelStream().forEach(r -> add(r));
+		return this;
+	}
+	
+	/**
+	 * この <code>Resource</code> の値を減少させる。
+	 * @see #add(Resource)
+	 * @see #sum(Resource)
+	 * @param subtracting 減少分
+	 * @return this
+	 */
+	public Resource subtract(Resource subtracting) {
+		fuel -= subtracting.getFuel();
+		bullet -= subtracting.getBullet();
+		steal -= subtracting.getSteal();
+		bauxite -= subtracting.getBauxite();
+		return this;
+	}
+	
+	/**
+	 * このインスタンスのもつ資源の値と、引数で与えられた資源の値を足し合わせた値を持つインスタンスを新たに作って返す。
+	 * このインスタンスと与えられたインスタンスは変化しない。 
+	 * @param other
+	 * @return
+	 * @see #add(Resource)
+	 */
+	public Resource sum(Resource other) {
+		return new Resource().add(this).add(other);
+	}
 
+	/* 以下 getter, setter */
+	
 	public int getFuel() {
 		return fuel;
 	}
@@ -78,8 +137,8 @@ public class Resource {
 		this.bauxite = bauxite;
 	}
 
-	public static Resource fromJsonArray(JsonArray json) {
-		Iterator<JsonElement> it = json.iterator();
+	public static Resource fromJsonArray(JsonElement json) {
+		Iterator<JsonElement> it = json.getAsJsonArray().iterator();
 		return new Resource(it.next().getAsInt(), it.next().getAsInt(), it.next().getAsInt(), it.next().getAsInt());
 	}
 

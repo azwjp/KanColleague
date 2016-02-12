@@ -14,7 +14,8 @@ import jp.azw.kancolleague.util.Resource;
 import jp.azw.kancolleague.util.アイテム入手;
 
 /**
- * /kcsapi/api_req_quest/clearitemget
+ * /kcsapi/api_req_quest/clearitemget<br />
+ * 任務クリア時に送られてくる情報。入手アイテム・資源等。
  * 
  * @author sayama
  *
@@ -59,19 +60,30 @@ public class QuestClear extends Root{
 			JsonObject obj = bonus.getAsJsonObject();
 			this.アイテムId = obj.get("api_item").getAsJsonObject().get("api_name").getAsInt();
 			JsonElement name = obj.get("api_item").getAsJsonObject().get("api_name");
-			this.アイテム名 = name.isJsonNull() ? "" : name.getAsString();
+			this.アイテム名 = name == null || name.isJsonNull() ? "" : name.getAsString();
 			this.個数 = obj.get("api_count").getAsInt();
 			this.type = obj.get("api_type").getAsInt();
 		}
+		/**
+		 * 8: ねじ
+		 */
 		public int getアイテムId() {
 			return アイテムId;
 		}
+		/**
+		 * どれも空
+		 * @return non-null (Json 上で null の場合空の文字列 "")
+		 */
 		public String getアイテム名() {
 			return アイテム名;
 		}
 		public int get個数() {
 			return 個数;
 		}
+		/**
+		 * どれも 1 ばかり。なんなんだろう。
+		 * @return
+		 */
 		public int getType() {
 			return type;
 		}

@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -13,6 +12,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import jp.azw.kancolleague.kcapi.Root;
+import jp.azw.kancolleague.util.JsonUtil;
 import jp.azw.kancolleague.util.Resource;
 import jp.azw.kancolleague.util.アイテム入手;
 import jp.azw.kancolleague.util.提督経験値入手;
@@ -21,7 +21,7 @@ import jp.azw.kancolleague.util.艦娘経験値入手;
 import jp.azw.kancolleague.util.艦娘経験値情報;
 
 /**
- * verno1
+ * verno: 1
  * 
  * @author sayama
  *
@@ -120,8 +120,8 @@ public class ExpeditionResult extends Root implements 提督経験値情報, 提
 		questName = apiData.get("api_quest_name").getAsString();
 		detail = apiData.get("api_detail").getAsString();
 		getExp = apiData.get("api_get_exp").getAsInt();
-		gettingItemFlag = StreamSupport.stream(apiData.get("api_useitem_flag").getAsJsonArray().spliterator(), false)
-				.map(element -> element.getAsInt())
+		gettingItemFlag = JsonUtil.fromJsonArray(apiData.get("api_useitem_flag"))
+				.map(JsonElement::getAsInt)
 				.collect(Collectors.toList());
 		JsonElement item = apiData.get("api_get_item1");
 		if (item != null && !item.isJsonNull()) {
@@ -131,17 +131,22 @@ public class ExpeditionResult extends Root implements 提督経験値情報, 提
 		if (item != null && !item.isJsonNull()) {
 			gettingItem.add(new GettingItem(item));
 		}
-		currentExp = StreamSupport.stream(apiData.get("api_get_exp_lvup").getAsJsonArray().spliterator(), false)
-				.map(element -> element.getAsJsonArray())
-				.map(ship -> Pair.of(ship.get(0).getAsInt(), ship.get(1).getAsInt())).collect(Collectors.toList());
-		gettingResource = Resource.fromJsonArray(apiData.get("api_get_material").getAsJsonArray());
-		gettingExp = StreamSupport.stream(apiData.get("api_get_ship_exp").getAsJsonArray().spliterator(), false).map(element -> element.getAsInt()).collect(Collectors.toList());
-		shipIds = StreamSupport.stream(apiData.get("api_ship_id").getAsJsonArray().spliterator(), false).map(element -> element.getAsInt()).collect(Collectors.toList());
+		currentExp = JsonUtil.fromJsonArray(apiData.get("api_get_exp_lvup"))
+				.map(JsonElement::getAsJsonArray)
+				.map(ship -> Pair.of(ship.get(0).getAsInt(), ship.get(1).getAsInt()))
+				.collect(Collectors.toList());
+		gettingResource = Resource.fromJsonArray(apiData.get("api_get_material"));
+		gettingExp = JsonUtil.fromJsonArray(apiData.get("api_get_ship_exp"))
+				.map(JsonElement::getAsInt)
+				.collect(Collectors.toList());
+		shipIds = JsonUtil.fromJsonArray(apiData.get("api_ship_id"))
+				.map(JsonElement::getAsInt)
+				.collect(Collectors.toList());
 		提督経験値 = apiData.get("api_member_exp").getAsInt();
 		司令部Level = apiData.get("api_member_lv").getAsInt();
 	}
 
-	public Result getClearResult() {
+	public Result get結果() {
 		return clearResult;
 	}
 
@@ -190,15 +195,25 @@ public class ExpeditionResult extends Root implements 提督経験値情報, 提
 		return gettingItemFlag;
 	}
 
+	/**
+	 * 第一艦隊とか第二艦隊とかそんなの。
+	 * 
+	 * @return 1〜4
+	 */
 	public int get艦隊番号() {
 		return deckId;
 	}
 
-	public int getQuestLevel() {
+	/**
+	 * たぶん E が 1 で上になるほど数字が大きくなっていく
+	 * 
+	 * @return 1 以上のはず
+	 */
+	public int get遠征難度() {
 		return questLevel;
 	}
 
-	public String getQuestName() {
+	public String get遠征名() {
 		return questName;
 	}
 
@@ -210,7 +225,7 @@ public class ExpeditionResult extends Root implements 提督経験値情報, 提
 			JsonObject obj = item.getAsJsonObject();
 			JsonElement name = item.getAsJsonObject().get("api_useitem_name");
 			アイテムId = obj.get("api_useitem_id").getAsInt();
-			アイテム名 = name.isJsonNull() ? "" : name.getAsString();
+			アイテム名 = name == null || name.isJsonNull() ? "" : name.getAsString();
 			個数 = obj.get("api_useitem_count").getAsInt();
 		}
 		/**

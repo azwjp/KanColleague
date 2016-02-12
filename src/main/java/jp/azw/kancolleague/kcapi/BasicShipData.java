@@ -1,19 +1,19 @@
 package jp.azw.kancolleague.kcapi;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
-
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import jp.azw.kancolleague.util.Range;
 import jp.azw.kancolleague.util.Resource;
-import jp.azw.kancolleague.util.Util;
+import jp.azw.kancolleague.util.JsonUtil;
 
 /**
  * api_start2 中の api_mst_ships 部分のデータを格納<br />
@@ -91,8 +91,8 @@ public class BasicShipData {
 			consumption = Optional.of(new Resource(apiMstShip.get("api_fuel_max").getAsInt(), apiMstShip.get("api_bull_max").getAsInt(), 0, 0));
 			gettingMessage = Optional.ofNullable(apiMstShip.get("api_getmes").getAsString());
 			range = Optional.of(apiMstShip.get("api_leng").getAsInt());
-			planeSpace = Optional.of(Util.jsonArrayToIntList(apiMstShip.get("api_maxeq").getAsJsonArray()));
-			modernization = Optional.of(Util.jsonArrayToIntList(apiMstShip.get("api_powup").getAsJsonArray()));
+			planeSpace = Optional.of(JsonUtil.jsonArrayToIntList(apiMstShip.get("api_maxeq").getAsJsonArray()));
+			modernization = Optional.of(JsonUtil.jsonArrayToIntList(apiMstShip.get("api_powup").getAsJsonArray()));
 			sortNo = Optional.of(apiMstShip.get("api_sortno").getAsInt());
 			voiceType = Optional.of(apiMstShip.get("api_voicef").getAsInt());
 			firepower = Optional.of(Range.of(apiMstShip.get("api_houg").getAsJsonArray().get(0).getAsInt(),
@@ -438,35 +438,31 @@ public class BasicShipData {
 	}
 
 	/**
-	 * api_start2 のデータを利用して {@link List} を作成します。 index と id は一致していません。 順序に保証はありません。
+	 * api_start2 のデータを利用して {@link List} を作成します。
+	 * index と id は一致していません。
+	 * 順序に保証はありませんがたぶん順序通りなはず。
 	 * 
 	 * @param apiStart2
 	 * @return {@link LinkedList}, synchronizedList
 	 */
 	public static List<BasicShipData> buildList(JsonObject apiStart2) {
-		JsonArray apiMstShips = apiStart2.get("api_data").getAsJsonObject().get("api_mst_ship").getAsJsonArray();
-		List<BasicShipData> list = Collections.synchronizedList(new LinkedList<>());
-		StreamSupport.stream(apiMstShips.spliterator(), true)
-				.map(ship -> ship.getAsJsonObject())
-				.map(ship -> new BasicShipData(ship))
-				.forEach(bsd -> list.add(bsd));
-		return list;
+		return buildBSDStream(apiStart2).collect(Collectors.toList());
 	}
 	
 	/**
-	 * apiStart2 のデータを利用して {@link Map} を作成します。
+	 * apiStart2 のデータを利用して {@link Map} を作成します。List よりちょっとだけ遅いかも。
 	 * 
 	 * @param apiStart2
 	 * @return {@link HashMap}: (key, value) = (api_id, <code>BasicShipData</code>), synchronizedMap
 	 */
 	public static Map<Integer, BasicShipData> buildMap(JsonObject apiStart2) {
-		JsonArray apiMstShips = apiStart2.get("api_data").getAsJsonObject().get("api_mst_ship").getAsJsonArray();
-		Map<Integer, BasicShipData> map = Collections.synchronizedMap(new HashMap<>());
-		StreamSupport.stream(apiMstShips.spliterator(), true)
-				.map(ship -> ship.getAsJsonObject())
-				.map(ship -> new BasicShipData(ship))
-				.forEach(bsd -> map.put(bsd.getId(), bsd));
-		return map;
+		return buildBSDStream(apiStart2).collect(Collectors.toMap(BasicShipData::getId, b->b));
+	}
+	
+	private static Stream<BasicShipData> buildBSDStream(JsonObject apiStart2) {
+		return JsonUtil.fromJsonArray(apiStart2.get("api_data").getAsJsonObject().get("api_mst_ship"))
+				.map(JsonElement::getAsJsonObject)
+				.map(BasicShipData::new);
 	}
 
 }

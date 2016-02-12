@@ -4,12 +4,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.StreamSupport;
-
+import java.util.stream.Collectors;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import jp.azw.kancolleague.util.JsonUtil;
 
 public class ConstrDockValue {
 
@@ -137,8 +138,9 @@ public class ConstrDockValue {
 	}
 	
 	public static List<ConstrDockValue> getConstrDock(JsonObject kDock) {
-		List<ConstrDockValue> list = new ArrayList<>();
-		StreamSupport.stream(kDock.get("api_data").getAsJsonArray().spliterator(), false).map(apiData -> new ConstrDockValue(apiData.getAsJsonObject())).forEach(e -> list.add(e));
-		return list;
+		return JsonUtil.fromJsonArray(kDock.get("api_data"))
+				.map(JsonElement::getAsJsonObject)
+				.map(ConstrDockValue::new)
+				.collect(Collectors.toList());
 	}
 }
