@@ -17,8 +17,7 @@ public class ShipGraph {
 	private String fileName;
 	private String version;
 	
-	public ShipGraph(JsonObject apiStart2, int index) {
-		JsonObject apiMstShipgraph = apiStart2.get("api_data").getAsJsonObject().get("api_mst_shipgraph").getAsJsonArray().get(index).getAsJsonObject();
+	public ShipGraph(JsonObject apiMstShipgraph) {
 		id = apiMstShipgraph.get("api_id").getAsInt();
 		sortNo = apiMstShipgraph.get("api_sortno").getAsInt();
 		fileName = apiMstShipgraph.get("api_filename").getAsString();
@@ -55,22 +54,5 @@ public class ShipGraph {
 
 	public void setVersion(String version) {
 		this.version = version;
-	}
-	
-	public static List<ShipGraph> buildList(JsonObject apiStart2) {
-		JsonArray apiMstShipgraphs = apiStart2.get("api_data").getAsJsonObject().get("api_mst_shipgraph").getAsJsonArray();
-		List<ShipGraph> list = Collections.synchronizedList(new LinkedList<>());
-		IntStream.range(0, apiMstShipgraphs.size()).parallel().forEach(i -> list.add(new ShipGraph(apiStart2, i)));
-		return list;
-	}
-	
-	public static Map<Integer, ShipGraph> buildMap(JsonObject apiStart2) {
-		JsonArray apiMstShipgraphs = apiStart2.get("api_data").getAsJsonObject().get("api_mst_shipgraph").getAsJsonArray();
-		Map<Integer, ShipGraph> map = Collections.synchronizedMap(new HashMap<>());
-		IntStream.range(0, apiMstShipgraphs.size()).parallel().forEach(i -> {
-			ShipGraph graph = new ShipGraph(apiStart2, i);
-			map.put(graph.getId(), graph);
-		});
-		return map;
 	}
 }

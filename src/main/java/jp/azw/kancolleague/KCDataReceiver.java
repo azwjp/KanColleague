@@ -16,8 +16,9 @@ import org.eclipse.jetty.client.api.Response;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import jp.azw.kancolleague.kcapi.BasicShipData;
-import jp.azw.kancolleague.kcapi.ShipGraph;
+import jp.azw.kancolleague.kcapi.ApiStart2;
+import jp.azw.kancolleague.kcapi.expedition.ExpeditionResult;
+import jp.azw.kancolleague.kcapi.portaction.Charge;
 import jp.azw.kancolleague.util.KCJsonType;
 
 public class KCDataReceiver {
@@ -61,16 +62,34 @@ public class KCDataReceiver {
 		}
 	}
 	
-	public void handleJson(String uri, KCJsonType type, JsonObject json, Map<String, String[]> parameters) {
+	public void handleJson(String uri, KCJsonType type, JsonObject json, Map<String, String[]> params) {
+		jsonHandler.allEvent(uri, json, params);
+		
 		switch (type) {
-		case API_START2:
+		case API_START2: {
 			jsonHandler.apiStart2(json);
-			dataHandler.basicShipData(BasicShipData.buildList(json));
-			dataHandler.shipGraph(ShipGraph.buildList(json));
+			ApiStart2 object = new ApiStart2(json, params);
+			dataHandler.apiStart2(object);
+			dataHandler.allEvent(object);
+		}
 			break;
+		case API_REQ_HOKYU__CHARGE: {
+			jsonHandler.apiReqHokyu_charge(json);
+			Charge object = new Charge(json, params);
+			dataHandler.portactionCharge(object);
+			dataHandler.allEvent(object);
+			break;
+		}
+		case EXPEDITION_RESULT: {
+			jsonHandler.apiReqMission_result(json);
+			ExpeditionResult object = new ExpeditionResult(json, params);
+			dataHandler.expeditionResult(object);
+			dataHandler.allEvent(object);
+			break;
+		}
 		case UNKNOWN: // KCJsonType.UNKNOWN
-			jsonHandler.unknown(uri, json, parameters);
-			dataHandler.unknown(uri, parameters);
+			jsonHandler.unknown(uri, json, params);
+			dataHandler.unknown(uri, params);
 			break;
 		default:
 			break;

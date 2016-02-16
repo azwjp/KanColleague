@@ -19,7 +19,7 @@ public class LoadJson {
 	public static String load(String api) {
 		StringBuilder sb = new StringBuilder();
 		try {
-			Files.lines(getPath(api), Charset.forName("UTF-8")).collect(StringBuilder::new, StringBuilder::append, StringBuilder::append);
+			Files.lines(getPath(api), Charset.forName("UTF-8")).forEach(line -> sb.append(line));
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;

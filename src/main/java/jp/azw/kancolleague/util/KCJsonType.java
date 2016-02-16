@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 public enum KCJsonType {
 	API_START2("/kcsapi/api_start2"),
+	API_REQ_HOKYU__CHARGE("/kcapi/api_req_hokyu/charge"),
+	EXPEDITION_RESULT("/kcapi/api_req_mission/result"),
 	UNKNOWN(""),
 	NON_KC(""),
 	;
