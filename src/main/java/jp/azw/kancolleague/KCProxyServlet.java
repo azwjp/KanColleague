@@ -15,6 +15,13 @@ import org.eclipse.jetty.client.api.Response;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.proxy.ProxyServlet;
 
+/**
+ * 艦これとの通信をキャプチャするためのプロキシ。
+ * とはいってもここの部分には艦これおよび KanColleague 特有の機能は入れない。
+ * 
+ * @author sayama
+ * @see {@link KCDataReceiver}
+ */
 class KCProxyServlet extends ProxyServlet {
 
 	private static final long serialVersionUID = -5197951173756399184L;

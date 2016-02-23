@@ -7,24 +7,37 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.client.api.Response;
+import org.eclipse.jetty.proxy.ProxyServlet;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import jp.azw.kancolleague.kcapi.ApiStart2;
+import jp.azw.kancolleague.kcapi.Root;
 import jp.azw.kancolleague.kcapi.expedition.ExpeditionResult;
 import jp.azw.kancolleague.kcapi.portaction.Charge;
 import jp.azw.kancolleague.util.KCJsonType;
 
+/**
+ * この <code>KCDataReceiver</code> は Context 内で {@link JsonEventHandler} および {@link JsonEventHandler} をセットする。
+ * 
+ * @author sayama
+ *
+ */
 public class KCDataReceiver {
+	private static final String KC_RESOURCE_SERVER = "125.6.188.25";
 	private DataChangedHandler dataHandler;
 	private JsonEventHandler jsonHandler;
 	private Optional<String> currentServer = Optional.empty();
+	ExecutorService ex = Executors.newWorkStealingPool();
+	private boolean isParallel = true;
 
 	private KCDataReceiver() {
 	}
@@ -37,6 +50,21 @@ public class KCDataReceiver {
 		this.jsonHandler = jsonHandler != null ? jsonHandler : JsonEventHandler.createEmptyHandler();
 	}
 
+	
+	/**
+	 * <p>
+	 * ここの部分では {@link KCProxyServlet#onResponseSuccess} の onResponseSuccess でやろうとする処理のうち、
+	 * 艦これ及び KanColleague 特有の部分の処理を行う。
+	 * 並列化しない部分の処理はここに記述するが、並列化してもよい・したい部分は {@link #parallel} に分けて記述する。
+	 * </p>
+	 * <p>
+	 * 必要ならば、 {@link ProxyServlet} を継承した別のクラスがオーバーライドした {@link ProxyServlet#onResponseSuccess} から利用してもよい。
+	 * </p>
+	 * 
+	 * @param request {@link ProxyServlet#onResponseSuccess} が引数として受け取ったものをそのまま
+	 * @param response {@link ProxyServlet#onResponseSuccess} が引数として受け取ったものをそのまま
+	 * @param proxyResponse {@link ProxyServlet#onResponseSuccess} が引数として受け取ったものをそのまま
+	 */
 	public void onReceive(HttpServletRequest request, HttpServletResponse response,
 			Response proxyResponse) {
 		if (isKcData(request, response) != KCJsonType.NON_KC) {
@@ -44,17 +72,10 @@ public class KCDataReceiver {
 				if (outputStream != null) {
 					// hasGotten = true;
 					byte[] responseBody = outputStream.toByteArray();
-					try (InputStream is = new ByteArrayInputStream(responseBody)) {
-
-						// 頭の svdata= を削除
-						for (int c = is.read(); c != -1 && c != '='; c = is.read());
-
-						JsonObject json = new Gson().fromJson(new InputStreamReader(is), JsonObject.class);
-
-						handleJson(request.getRequestURI(), KCJsonType.detect(request.getRequestURI()), json, request.getParameterMap());
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
+					parallel(() -> handleJson(request.getRequestURI(),
+							responseBody,
+							request.getParameterMap(),
+							request.getSession().getCreationTime()));
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -62,38 +83,69 @@ public class KCDataReceiver {
 		}
 	}
 	
-	public void handleJson(String uri, KCJsonType type, JsonObject json, Map<String, String[]> params) {
-		jsonHandler.allEvent(uri, json, params);
-		
-		switch (type) {
-		case API_START2: {
-			jsonHandler.apiStart2(json);
-			ApiStart2 object = new ApiStart2(json, params);
-			dataHandler.apiStart2(object);
-			dataHandler.allEvent(object);
+	protected void parallel(Runnable task) {
+		if(isParallel) {
+			ex.submit(task);
+		} else {
+			task.run();
 		}
-			break;
-		case API_REQ_HOKYU__CHARGE: {
-			jsonHandler.apiReqHokyu_charge(json);
-			Charge object = new Charge(json, params);
-			dataHandler.portactionCharge(object);
-			dataHandler.allEvent(object);
-			break;
+	}
+	
+	/**
+	 * 並立化してもいい処理をここにまとめる。
+	 * スレッドセーフでない場合は <code>isParallel</code> を <code>false</code> にする。
+	 * 
+	 * @param uri /kcsapi/ から始まる URI
+	 * @param responseBody svdata={ から始まる JSON のデータ
+	 * @param params HTTP の request で送信したパラメータ
+	 * @param requestCreationTime Request の作成時刻
+	 */
+	protected void handleJson(String uri, byte[] responseBody, Map<String, String[]> params, long requestCreationTime) {
+		KCJsonType type = KCJsonType.detect(uri);
+		try {
+			// 頭の svdata= を削除
+			InputStream is = new ByteArrayInputStream(responseBody);
+			for (int c = is.read(); c != -1 && c != '='; c = is.read());
+			InputStreamReader isr = new InputStreamReader(is);
+			JsonObject json = new Gson().fromJson(isr, JsonObject.class);
+			try {
+				isr.close();
+				is.close();
+			} catch (IOException e) {				
+			}
+			isr = null;
+			is = null;
+			
+			jsonHandler.allEvent(uri, json, params);
+			
+			switch (type) {
+			case API_START2:
+				jsonHandler.apiStart2(json);
+				dataHandler.apiStart2(commonHandlingAction(new ApiStart2(json, params), requestCreationTime));
+				break;
+			case API_REQ_HOKYU__CHARGE:
+				jsonHandler.apiReqHokyu_charge(json);
+				dataHandler.portactionCharge(commonHandlingAction(new Charge(json, params), requestCreationTime));
+				break;
+			case EXPEDITION_RESULT:
+				jsonHandler.apiReqMission_result(json);
+				dataHandler.expeditionResult(commonHandlingAction(new ExpeditionResult(json, params), requestCreationTime));
+				break;
+			case UNKNOWN: // KCJsonType.UNKNOWN
+				jsonHandler.unknown(uri, json, params);
+				dataHandler.unknown(uri, params);
+				break;
+			default:
+				break;
+			}
+		} catch (IOException e) {
 		}
-		case EXPEDITION_RESULT: {
-			jsonHandler.apiReqMission_result(json);
-			ExpeditionResult object = new ExpeditionResult(json, params);
-			dataHandler.expeditionResult(object);
-			dataHandler.allEvent(object);
-			break;
-		}
-		case UNKNOWN: // KCJsonType.UNKNOWN
-			jsonHandler.unknown(uri, json, params);
-			dataHandler.unknown(uri, params);
-			break;
-		default:
-			break;
-		}
+	}
+
+	private <T extends Root> T commonHandlingAction(T root, long requestCreationTime) {
+		root.setTime(requestCreationTime);
+		dataHandler.allEvent(root);
+		return root;
 	}
 
 	public KCDataReceiver reset() {

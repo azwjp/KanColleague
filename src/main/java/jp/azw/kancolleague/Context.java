@@ -23,7 +23,7 @@ public class Context{
 		
 	}
  
-	public Context create() {
+	private Context create() {
 		connector = new ServerConnector(server = new Server());
 		connector.setPort(port);
 		server.addConnector(connector);
@@ -33,8 +33,7 @@ public class Context{
 
 		// proxy servlet
 		ServletContextHandler context = new ServletContextHandler(handlers, "/", ServletContextHandler.SESSIONS);
-		servlet = KCProxyServlet.instance(dataReceiver);
-		context.addServlet(new ServletHolder(servlet), "/*");
+		context.addServlet(new ServletHolder(servlet = KCProxyServlet.instance(dataReceiver)), "/*");
 
 		// proxy handler (CONNECT method)
 		// for HTTPS

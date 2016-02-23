@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 public class Root {
 	private String token;
 	private int verNo;
+	private long time;
 	
 	protected Root() {
 		
@@ -23,5 +24,18 @@ public class Root {
 
 	public int getVerNo() {
 		return verNo;
+	}
+
+	/**
+	 * このライブラリでは、このオブジェクト作成時に HTTP request の作成時刻を入れてある。
+	 * 
+	 * @return 時刻の数値表記。デフォルトでは HTTP request の作成時刻。
+	 */
+	public long getTime() {
+		return time;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
 	}
 }
