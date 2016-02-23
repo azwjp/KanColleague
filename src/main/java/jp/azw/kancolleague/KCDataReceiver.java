@@ -35,19 +35,27 @@ public class KCDataReceiver {
 	private static final String KC_RESOURCE_SERVER = "125.6.188.25";
 	private DataChangedHandler dataHandler;
 	private JsonEventHandler jsonHandler;
+	private ResourceHandler resourceHandler;
 	private Optional<String> currentServer = Optional.empty();
 	ExecutorService ex = Executors.newWorkStealingPool();
-	private boolean isParallel = true;
+	private boolean isParallel = false;
 
 	private KCDataReceiver() {
 	}
 
-	public void setDataHandler(DataChangedHandler dataHandler) {
+	public KCDataReceiver setHandler(DataChangedHandler dataHandler) {
 		this.dataHandler = dataHandler != null ? dataHandler : DataChangedHandler.createEmptyHandler();
+		return this;
 	}
 
-	public void setJsonHandler(JsonEventHandler jsonHandler) {
+	public KCDataReceiver setHandler(JsonEventHandler jsonHandler) {
 		this.jsonHandler = jsonHandler != null ? jsonHandler : JsonEventHandler.createEmptyHandler();
+		return this;
+	}
+
+	public KCDataReceiver setHandler(ResourceHandler resourceHandler) {
+		this.resourceHandler = resourceHandler != null ? resourceHandler : ResourceHandler.createEmptyHandler();
+		return this;
 	}
 
 	
@@ -67,15 +75,30 @@ public class KCDataReceiver {
 	 */
 	public void onReceive(HttpServletRequest request, HttpServletResponse response,
 			Response proxyResponse) {
-		if (isKcData(request, response) != KCJsonType.NON_KC) {
+		if (isKcData(request, response)) {
 			try(ByteArrayOutputStream outputStream = (ByteArrayOutputStream) request.getAttribute(KCProxyServlet.RESPONSE)){
-				if (outputStream != null) {
-					// hasGotten = true;
+				if (outputStream != null && response.getContentType() != null) {
 					byte[] responseBody = outputStream.toByteArray();
-					parallel(() -> handleJson(request.getRequestURI(),
-							responseBody,
-							request.getParameterMap(),
-							request.getSession().getCreationTime()));
+					switch (response.getContentType()) {
+					case "text/plain": // JSON
+						parallel(() -> handleJson(request.getRequestURI(),
+								responseBody,
+								request.getParameterMap(),
+								request.getSession().getCreationTime()));
+						break;
+					case "application/x-shockwave-flash": // flash
+						resourceHandler.flash(request.getRequestURI(), new ByteArrayInputStream(responseBody), request.getParameterMap());
+						break;
+					case "audio/mpeg": // 音声
+						resourceHandler.audio(request.getRequestURI(), new ByteArrayInputStream(responseBody), request.getParameterMap());
+						break;
+					case "image/png":
+						resourceHandler.png(request.getRequestURI(), new ByteArrayInputStream(responseBody), request.getParameterMap());
+						break;
+					default:
+						resourceHandler.other(request.getRequestURI(), new ByteArrayInputStream(responseBody), request.getParameterMap());
+						break;
+					}
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -151,6 +174,7 @@ public class KCDataReceiver {
 	public KCDataReceiver reset() {
 		dataHandler = DataChangedHandler.createEmptyHandler();
 		jsonHandler = JsonEventHandler.createEmptyHandler();
+		resourceHandler = ResourceHandler.createEmptyHandler();
 		return this;
 	}
 
@@ -165,25 +189,30 @@ public class KCDataReceiver {
 	 * @param response
 	 * @return
 	 */
-	public KCJsonType isKcData(HttpServletRequest request, HttpServletResponse response) {
-		/*
-		 * とりあえず速度を優先したいので、KCJsonType::detect(String) の実行回数は出来るだけ少なくする。 そのため
-		 * content-type とサーバで絞り込む。 最も回数が多く、プレイ中で速度が必要な「サーバ特定済み」の時点での動作速度を優先する。
-		 * 後で contentType の判定は後半にもって行きたい。
-		 */
-		if (response.getContentType() != null && response.getContentType().equals("text/plain")) {
-			if (!currentServer.isPresent()){
-				KCJsonType type = KCJsonType.detect(request.getRequestURI());
-				if (type != KCJsonType.UNKNOWN) {
-					currentServer = Optional.of(request.getServerName());
-				}
-				return type;
-			} else {
-				if (request.getServerName().equals(currentServer)) {
-					return KCJsonType.detect(request.getRequestURI());
-				}
+	public boolean isKcData(HttpServletRequest request, HttpServletResponse response) {
+		if (request.getServerName().equals(KC_RESOURCE_SERVER)) {
+			// 艦これリソースサーバだった場合
+			return true;
+		} else if (!currentServer.isPresent()) {
+			// 自分の鎮守府サーバがまだわからない場合
+			KCJsonType type = KCJsonType.detect(request.getRequestURI());
+			if (type != KCJsonType.UNKNOWN) {
+				currentServer = Optional.of(request.getServerName());
 			}
+			return true;
+		} else if (request.getServerName().equals(currentServer)) {
+			// 自分の鎮守府サーバがわかっている場合
+			return KCJsonType.detect(request.getRequestURI()) != KCJsonType.NON_KC;
+		} else {
+			return false;
 		}
-		return KCJsonType.NON_KC;
+	}
+
+	public boolean isParallel() {
+		return isParallel;
+	}
+
+	public void setParallel(boolean isParallel) {
+		this.isParallel = isParallel;
 	}
 }

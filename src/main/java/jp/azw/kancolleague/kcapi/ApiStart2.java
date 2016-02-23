@@ -14,6 +14,8 @@ import jp.azw.kancolleague.util.JsonUtil;
 public class ApiStart2 extends Root {
 	private List<BasicShipData> basicShipDatas;
 	private List<ShipGraph> shipGraphs;
+	private Map<Integer, BasicShipData> basicShipDatasMap;
+	private Map<Integer, ShipGraph> shipGraphsMap;
 
 	public ApiStart2(JsonObject apiStart2, Map<String, String[]> requestParams) {
 		basicShipDatas = JsonUtil.fromJsonArray(apiStart2.get("api_data").getAsJsonObject().get("api_mst_ship"))
@@ -24,14 +26,16 @@ public class ApiStart2 extends Root {
 				.map(JsonElement::getAsJsonObject)
 				.map(ShipGraph::new)
 				.collect(Collectors.toList());
+		basicShipDatasMap = basicShipDatas.parallelStream().collect(Collectors.toMap(BasicShipData::getId, b -> b));
+		shipGraphsMap = shipGraphs.parallelStream().collect(Collectors.toMap(ShipGraph::getId, b -> b));
 	}
 
 	public Map<Integer, BasicShipData> getBasicShipDataMap () {
-		return basicShipDatas.parallelStream().collect(Collectors.toMap(BasicShipData::getId, b -> b));
+		return basicShipDatasMap;
 	}
 	
 	public Map<Integer, ShipGraph> getShipGraphMap () {
-		return shipGraphs.parallelStream().collect(Collectors.toMap(ShipGraph::getId, b -> b));
+		return shipGraphsMap;
 	}
 	
 

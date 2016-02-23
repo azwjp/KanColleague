@@ -48,7 +48,6 @@ public class Context{
 		}
 
 		server.start();
-		server.join();
 
 		return this;
 	}
@@ -57,6 +56,7 @@ public class Context{
 		if (server != null) {
 			server.stop();
 			server.join();
+			server = null;
 		}
 
 		return this;
@@ -64,10 +64,11 @@ public class Context{
 	
 	/**
 	 * インターネット側 (艦これ側) のプロキシを設定する。解除するときは  {@link #unsetProxy()} で。
+	 * {@link start()} またち {@link restart()} するまで変更は適用されない。
 	 * 
 	 * @param host null か 空 ("") の場合は "localhost"
 	 * @param port
-	 * @return
+	 * @return このインスタンス自身
 	 */
 	public Context setProxy(String host, int port) {
 		if (host == null || host.isEmpty()) {
@@ -79,6 +80,7 @@ public class Context{
 	
 	/**
 	 * インターネット側 (艦これ側) のプロキシを解除する。
+	 * {@link start()} またち {@link restart()} するまで変更は適用されない。
 	 * 
 	 * @return
 	 */
@@ -89,18 +91,27 @@ public class Context{
 
 	/**
 	 * 受信側 (ローカル側、ブラウザ側) のポート番号をセットする。
+	 * {@link start()} またち {@link restart()} するまで変更は適用されない。
 	 * 
-	 * @param port
+	 * @return このインスタンス自身
 	 * @return
 	 */
 	public Context setPort(int port) {
-		// TODO ServerConnector の setPort でちゃんと変わるか確かめる
-		// {@link #create()} するまで変わらないのかどうか。
 		this.port = port;
 		if (connector != null) {
 			connector.setPort(port);
 		}
 		return this;
+	}
+	
+	/**
+	 * {@link #stop()} してから {@link start()} する。
+	 * 
+	 * @return このインスタンス自身
+	 * @throws Exception
+	 */
+	public Context restart() throws Exception {
+		return stop().start();
 	}
 
 	public int getPort() {
@@ -118,6 +129,10 @@ public class Context{
 	private Context refleshServletSetting() {
 		if (servlet != null) {
 			servlet.setDataReceiver(dataReceiver).setProxy(proxyConfiguration).setAllAccess(allAccess);
+			try {
+				stop().create().start();
+			} catch (Exception e) {
+			}
 		}
 		return this;
 	}
