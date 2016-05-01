@@ -18,6 +18,7 @@ public class ApiStart2 extends Root {
 	private Map<Integer, ShipGraph> shipGraphsMap;
 
 	public ApiStart2(JsonObject apiStart2, Map<String, String[]> requestParams) {
+		super(apiStart2, requestParams);
 		basicShipDatas = JsonUtil.fromJsonArray(apiStart2.get("api_data").getAsJsonObject().get("api_mst_ship"))
 				.map(JsonElement::getAsJsonObject)
 				.map(BasicShipData::new)

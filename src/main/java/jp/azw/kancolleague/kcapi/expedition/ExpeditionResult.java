@@ -159,7 +159,7 @@ public class ExpeditionResult extends Root implements 提督経験値情報, 提
 		gettingItem = new ArrayList<>();
 	}
 	
-	protected ExpeditionResult() {
+	private ExpeditionResult() {
 		init();
 	}
 

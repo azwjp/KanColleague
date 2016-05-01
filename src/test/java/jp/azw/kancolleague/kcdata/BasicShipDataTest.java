@@ -16,15 +16,14 @@ import jp.azw.kancolleague.kcapi.ApiStart2;
 import jp.azw.kancolleague.kcapi.BasicShipData;
 
 @RunWith(JUnit4.class)
-public class BasicShipDataTest extends RootTest{
+public class BasicShipDataTest extends RootTest<ApiStart2>{
 	JsonObject apiStart2Json;
-	ApiStart2 apiStart2;
 	int length;
 
 	@Before
 	public void setup() {
 		apiStart2Json = LoadJson.loadJson("api_start2");
-		apiStart2 = new ApiStart2(apiStart2Json, param);
+		json = new ApiStart2(apiStart2Json, param);
 		length = apiStart2Json.get("api_data").getAsJsonObject().get("api_mst_ship").getAsJsonArray().size();
 	}
 

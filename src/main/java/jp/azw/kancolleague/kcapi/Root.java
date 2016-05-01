@@ -13,8 +13,8 @@ public class Root {
 		
 	}
 	
-	protected Root(JsonObject json, Map<String, String[]> parameters) {
-		init(json, parameters);
+	protected Root(JsonObject json, Map<String, String[]> requestParams) {
+		init(json, requestParams);
 	}
 	
 	protected void init(JsonObject json, Map<String, String[]> parameters) {
