@@ -26,7 +26,6 @@ public class ChargeElement {
 	private List<Integer> 最大艦載機数 = new ArrayList<>();
 	
 	public ChargeElement(int id, Resource charged, List<Integer> onslot) {
-		super();
 		this.id = id;
 		this.charged = charged;
 		this.最大艦載機数 = onslot;
