@@ -128,7 +128,12 @@ public class KCDataReceiver {
 		try {
 			// 頭の svdata= を削除
 			InputStream is = new ByteArrayInputStream(responseBody);
-			for (int c = is.read(); c != -1 && c != '='; c = is.read());
+			is.mark(1);
+			if (is.read() == 's'){ // svdata= を削除
+				for (int c = is.read(); c != -1 && c != '='; c = is.read());
+			} else {
+				is.reset();
+			}
 			InputStreamReader isr = new InputStreamReader(is);
 			JsonObject json = new Gson().fromJson(isr, JsonObject.class);
 			try {
