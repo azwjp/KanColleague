@@ -23,7 +23,7 @@ public class BasicShipDataTest extends RootTest<ApiStart2>{
 	@Before
 	public void setup() {
 		apiStart2Json = LoadJson.loadJson("api_start2");
-		json = new ApiStart2(apiStart2Json, param);
+		json = ApiStart2.instance(apiStart2Json, param);
 		length = apiStart2Json.get("api_data").getAsJsonObject().get("api_mst_ship").getAsJsonArray().size();
 	}
 

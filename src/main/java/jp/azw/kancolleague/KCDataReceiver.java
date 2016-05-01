@@ -148,11 +148,11 @@ public class KCDataReceiver {
 		switch (type) {
 		case API_START2:
 			jsonHandler.apiStart2(json);
-			dataHandler.apiStart2(commonHandlingAction(new ApiStart2(json, params), requestCreationTime));
+			dataHandler.apiStart2(commonHandlingAction(ApiStart2.instance(json, params), requestCreationTime));
 			break;
 		case API_REQ_HOKYU__CHARGE:
 			jsonHandler.apiReqHokyu_charge(json);
-			dataHandler.portactionCharge(commonHandlingAction(new Charge(json, params), requestCreationTime));
+			dataHandler.portactionCharge(commonHandlingAction(Charge.instance(json, params), requestCreationTime));
 			break;
 		case EXPEDITION_RESULT:
 			jsonHandler.apiReqMission_result(json);

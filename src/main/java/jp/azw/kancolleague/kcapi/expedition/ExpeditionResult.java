@@ -57,7 +57,7 @@ public class ExpeditionResult extends Root implements 提督経験値情報, 提
 			return Arrays.stream(values()).parallel().filter(state -> state.getValue() == value ).findAny().orElse(UNKNOWN);
 		}
 		
-		public static class ResultDeserializer implements JsonDeserializer<Result> {
+		public static class Deserializer implements JsonDeserializer<Result> {
 
 		    @Override
 		    public Result deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
@@ -155,12 +155,8 @@ public class ExpeditionResult extends Root implements 提督経験値情報, 提
 	 */
 	private List<GettingItem> gettingItem;
 	
-	private void init() {
-		gettingItem = new ArrayList<>();
-	}
-	
 	private ExpeditionResult() {
-		init();
+		gettingItem = new ArrayList<>();
 	}
 
 	public Result get結果() {
@@ -273,8 +269,8 @@ public class ExpeditionResult extends Root implements 提督経験値情報, 提
 		JsonObject apiData = json.get("api_data").getAsJsonObject();
 		
 		ExpeditionResult result =  new GsonBuilder()
-				.registerTypeAdapter(Result.class, new Result.ResultDeserializer())
-				.registerTypeAdapter(Resource.class, new Resource.ResourceDeserializer())
+				.registerTypeAdapter(Result.class, new Result.Deserializer())
+				.registerTypeAdapter(Resource.class, new Resource.Deserializer())
 				.create()
 				.fromJson(new Gson().toJson(apiData), ExpeditionResult.class);
 		

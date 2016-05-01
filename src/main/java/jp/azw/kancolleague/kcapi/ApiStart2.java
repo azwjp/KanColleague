@@ -17,20 +17,6 @@ public class ApiStart2 extends Root {
 	private Map<Integer, BasicShipData> basicShipDatasMap;
 	private Map<Integer, ShipGraph> shipGraphsMap;
 
-	public ApiStart2(JsonObject apiStart2, Map<String, String[]> requestParams) {
-		super(apiStart2, requestParams);
-		basicShipDatas = JsonUtil.fromJsonArray(apiStart2.get("api_data").getAsJsonObject().get("api_mst_ship"))
-				.map(JsonElement::getAsJsonObject)
-				.map(BasicShipData::new)
-				.collect(Collectors.toList());
-		shipGraphs = JsonUtil.fromJsonArray(apiStart2.get("api_data").getAsJsonObject().get("api_mst_shipgraph"))
-				.map(JsonElement::getAsJsonObject)
-				.map(ShipGraph::new)
-				.collect(Collectors.toList());
-		basicShipDatasMap = basicShipDatas.parallelStream().collect(Collectors.toMap(BasicShipData::getId, b -> b));
-		shipGraphsMap = shipGraphs.parallelStream().collect(Collectors.toMap(ShipGraph::getId, b -> b));
-	}
-
 	public Map<Integer, BasicShipData> getBasicShipDataMap () {
 		return basicShipDatasMap;
 	}
@@ -84,5 +70,22 @@ public class ApiStart2 extends Root {
 
 	public List<ShipGraph> getShipGraphs() {
 		return shipGraphs;
+	}
+	
+	public static ApiStart2 instance(JsonObject apiStart2, Map<String, String[]> requestParams) {
+		ApiStart2 a = new ApiStart2();
+		a.init(apiStart2, requestParams);
+		a.basicShipDatas = JsonUtil.fromJsonArray(apiStart2.get("api_data").getAsJsonObject().get("api_mst_ship"))
+				.map(JsonElement::getAsJsonObject)
+				.map(BasicShipData::new)
+				.collect(Collectors.toList());
+		a.shipGraphs = JsonUtil.fromJsonArray(apiStart2.get("api_data").getAsJsonObject().get("api_mst_shipgraph"))
+				.map(JsonElement::getAsJsonObject)
+				.map(ShipGraph::new)
+				.collect(Collectors.toList());
+		a.basicShipDatasMap = a.basicShipDatas.parallelStream().collect(Collectors.toMap(BasicShipData::getId, b -> b));
+		a.shipGraphsMap = a.shipGraphs.parallelStream().collect(Collectors.toMap(ShipGraph::getId, b -> b));
+		
+		return a;
 	}
 }

@@ -1,14 +1,6 @@
 package jp.azw.kancolleague.kcapi;
 
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.IntStream;
-
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class ShipGraph {

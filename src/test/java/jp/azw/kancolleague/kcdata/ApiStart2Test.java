@@ -28,7 +28,7 @@ public class ApiStart2Test extends RootTest<ApiStart2> {
 	@Before
 	public void setUp() throws Exception {
 		apiStart2Json = LoadJson.loadJson("api_start2");
-		json = new ApiStart2(apiStart2Json, param);
+		json = ApiStart2.instance(apiStart2Json, param);
 		apiMstShipLength = apiStart2Json.get("api_data").getAsJsonObject().get("api_mst_ship").getAsJsonArray().size();
 		shipGraphLength = apiStart2Json.get("api_data").getAsJsonObject().get("api_mst_shipgraph").getAsJsonArray().size();
 	}

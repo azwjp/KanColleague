@@ -9,8 +9,6 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
-import jp.azw.kancolleague.kcapi.expedition.ExpeditionResult.Result;
-
 /**
  * 資源を表すのに用いる。
  * 
@@ -172,7 +170,7 @@ public class Resource {
 		return new Resource(fuel, bullet, steal, bauxite);
 	}
 	
-	public static class ResourceDeserializer implements JsonDeserializer<Resource> {
+	public static class Deserializer implements JsonDeserializer<Resource> {
 
 	    @Override
 	    public Resource deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
