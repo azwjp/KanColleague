@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
+
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -80,8 +82,7 @@ public class ApiStart2 extends Root {
 				.map(BasicShipData::new)
 				.collect(Collectors.toList());
 		a.shipGraphs = JsonUtil.fromJsonArray(apiStart2.get("api_data").getAsJsonObject().get("api_mst_shipgraph"))
-				.map(JsonElement::getAsJsonObject)
-				.map(ShipGraph::new)
+				.map(element -> new Gson().fromJson(element, ShipGraph.class))
 				.collect(Collectors.toList());
 		a.basicShipDatasMap = a.basicShipDatas.parallelStream().collect(Collectors.toMap(BasicShipData::getId, b -> b));
 		a.shipGraphsMap = a.shipGraphs.parallelStream().collect(Collectors.toMap(ShipGraph::getId, b -> b));
