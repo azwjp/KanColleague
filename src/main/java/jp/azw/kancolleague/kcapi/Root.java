@@ -14,6 +14,10 @@ public class Root {
 	}
 	
 	protected Root(JsonObject json, Map<String, String[]> parameters) {
+		init(json, parameters);
+	}
+	
+	protected void init(JsonObject json, Map<String, String[]> parameters) {
 		token = parameters.getOrDefault("api_token", new String[]{""})[0];
 		verNo = Integer.valueOf(parameters.getOrDefault("api_verno", new String[]{""})[0]);
 	}

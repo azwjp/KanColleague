@@ -20,19 +20,28 @@ import jp.azw.kancolleague.util.Resource;
 @RunWith(JUnit4.class)
 public class ExpeditionResultTest {
 	ExpeditionResult er;
+	Map<String, String[]> param = new HashMap<>();
 
 	@Before
 	public void setup() {
-		Map<String, String[]> param = new HashMap<>();
 		param.put("api_deck_id", new String[]{"1"});
 		param.put("api_token", new String[]{"test"});
 		param.put("api_verno", new String[]{"1"});
-		er = new ExpeditionResult(LoadJson.loadJson("api_req_mission/result"), param);
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void test_loadjson() {
+	public void test_loadjson2() {
+		er = ExpeditionResult.instance(LoadJson.loadJson("api_req_mission/result"), param);
+		asserts();
+	}
+	
+	@Test
+	public void test_Result() {
+		assertThat(ExpeditionResult.Result.getResult(1), is(ExpeditionResult.Result.SUCCESS));
+	}
+	
+	private void asserts() {
 		assertThat(er.get入手アイテムFlag(), is(contains(1, 0)));
 		assertThat(er.get入手提督経験値(), is(20));
 		assertThat(er.get艦娘Id(), is(contains(-1, 9094, 7570, 8777, 8968)));

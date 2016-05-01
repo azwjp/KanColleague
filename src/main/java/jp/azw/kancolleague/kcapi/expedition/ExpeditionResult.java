@@ -1,5 +1,6 @@
 package jp.azw.kancolleague.kcapi.expedition;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,8 +9,14 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.annotations.SerializedName;
 
 import jp.azw.kancolleague.kcapi.Root;
 import jp.azw.kancolleague.util.JsonUtil;
@@ -49,101 +56,111 @@ public class ExpeditionResult extends Root implements 提督経験値情報, 提
 		public static Result getResult(int value) {
 			return Arrays.stream(values()).parallel().filter(state -> state.getValue() == value ).findAny().orElse(UNKNOWN);
 		}
+		
+		public static class ResultDeserializer implements JsonDeserializer<Result> {
+
+		    @Override
+		    public Result deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+		            throws JsonParseException {
+		        return Result.getResult(json.getAsInt());
+		    }
+		}
 	}
 	
 	/**
 	 * api_deck_id
 	 */
+	@SerializedName("api_deck_id")
 	private int deckId;
+	
 	/**
 	 * api_clear_result
 	 */
+	@SerializedName("api_clear_result")
 	private Result clearResult;
+	
 	/**
 	 * api_maparea_name
 	 */
+	@SerializedName("api_maparea_name")
 	private String mapareaName;
+	
 	/**
-	 * api_questlevel
+	 * api_quest_level
 	 */
+	@SerializedName("api_quest_level")
 	private int questLevel;
+	
 	/**
-	 * api_questname
+	 * api_quest_name
 	 */
+	@SerializedName("api_quest_name")
 	private String questName;
+	
 	/**
 	 * api_detail
 	 * 遠征の説明文
 	 */
+	@SerializedName("api_detail")
 	private String detail;
+	
 	/**
 	 * api_get_exp
 	 */
+	@SerializedName("api_get_exp")
 	private int getExp;
+	
 	/**
 	 * get_exp_lvup
 	 * <current, to next>
 	 */
 	private List<Pair<Integer, Integer>> currentExp;
+	
 	/**
 	 * api_get_material
 	 */
+	@SerializedName("api_get_material")
 	private Resource gettingResource;
+	
 	/**
 	 * api_get_ship_exp
 	 */
+	@SerializedName("api_get_ship_exp")
 	private List<Integer> gettingExp;
+	
 	/**
 	 * api_ship_id
 	 */
+	@SerializedName("api_ship_id")
 	private List<Integer> shipIds;
+	
 	/**
 	 * api_member_exp
 	 */
+	@SerializedName("api_member_exp")
 	private int 提督経験値;
+	
 	/**
 	 * api_member_lv
 	 */
+	@SerializedName("api_member_lv")
 	private int 司令部Level;
-	
-	private List<Integer> gettingItemFlag;
-	
-	private List<GettingItem> gettingItem = new ArrayList<>();
 
-	public ExpeditionResult(JsonObject json, Map<String, String[]> requestParam) {
-		super(json, requestParam);
-		JsonObject apiData = json.get("api_data").getAsJsonObject();
-		deckId = Integer.valueOf(requestParam.get("api_deck_id")[0]);
-		clearResult = Result.getResult(apiData.get("api_clear_result").getAsInt());
-		mapareaName = apiData.get("api_maparea_name").getAsString();
-		questLevel = apiData.get("api_quest_level").getAsInt();
-		questName = apiData.get("api_quest_name").getAsString();
-		detail = apiData.get("api_detail").getAsString();
-		getExp = apiData.get("api_get_exp").getAsInt();
-		gettingItemFlag = JsonUtil.fromJsonArray(apiData.get("api_useitem_flag"))
-				.map(JsonElement::getAsInt)
-				.collect(Collectors.toList());
-		JsonElement item = apiData.get("api_get_item1");
-		if (item != null && !item.isJsonNull()) {
-			gettingItem.add(new GettingItem(item));
-		}
-		item = apiData.get("api_get_item2");
-		if (item != null && !item.isJsonNull()) {
-			gettingItem.add(new GettingItem(item));
-		}
-		currentExp = JsonUtil.fromJsonArray(apiData.get("api_get_exp_lvup"))
-				.map(JsonElement::getAsJsonArray)
-				.map(ship -> Pair.of(ship.get(0).getAsInt(), ship.get(1).getAsInt()))
-				.collect(Collectors.toList());
-		gettingResource = Resource.fromJsonArray(apiData.get("api_get_material"));
-		gettingExp = JsonUtil.fromJsonArray(apiData.get("api_get_ship_exp"))
-				.map(JsonElement::getAsInt)
-				.collect(Collectors.toList());
-		shipIds = JsonUtil.fromJsonArray(apiData.get("api_ship_id"))
-				.map(JsonElement::getAsInt)
-				.collect(Collectors.toList());
-		提督経験値 = apiData.get("api_member_exp").getAsInt();
-		司令部Level = apiData.get("api_member_lv").getAsInt();
+	@SerializedName("api_useitem_flag")
+	private List<Integer> gettingItemFlag;
+
+
+	/**
+	 * api_get_item1, api_get_item2
+	 */
+	private List<GettingItem> gettingItem;
+	
+	private void init() {
+		gettingItem = new ArrayList<>();
+	}
+	
+	protected ExpeditionResult() {
+		init();
 	}
 
 	public Result get結果() {
@@ -217,7 +234,7 @@ public class ExpeditionResult extends Root implements 提督経験値情報, 提
 		return questName;
 	}
 
-	public class GettingItem implements アイテム入手{
+	public static class GettingItem implements アイテム入手{
 		private int アイテムId;
 		private String アイテム名;
 		private int 個数;
@@ -250,5 +267,33 @@ public class ExpeditionResult extends Root implements 提督経験値情報, 提
 
 	public List<GettingItem> get入手アイテム() {
 		return gettingItem;
+	}
+	
+	public static ExpeditionResult instance(JsonObject json, Map<String, String[]> requestParam) {
+		JsonObject apiData = json.get("api_data").getAsJsonObject();
+		
+		ExpeditionResult result =  new GsonBuilder()
+				.registerTypeAdapter(Result.class, new Result.ResultDeserializer())
+				.registerTypeAdapter(Resource.class, new Resource.ResourceDeserializer())
+				.create()
+				.fromJson(new Gson().toJson(apiData), ExpeditionResult.class);
+		
+		result.init(json, requestParam);
+		
+		result.currentExp = JsonUtil.fromJsonArray(apiData.get("api_get_exp_lvup"))
+				.map(JsonElement::getAsJsonArray)
+				.map(ship -> Pair.of(ship.get(0).getAsInt(), ship.get(1).getAsInt()))
+				.collect(Collectors.toList());
+		
+		JsonElement item = apiData.get("api_get_item1");
+		if (item != null && !item.isJsonNull()) {
+			result.gettingItem.add(new GettingItem(item));
+		}
+		item = apiData.get("api_get_item2");
+		if (item != null && !item.isJsonNull()) {
+			result.gettingItem.add(new GettingItem(item));
+		}
+		
+		return result;
 	}
 }

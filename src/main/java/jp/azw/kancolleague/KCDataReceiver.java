@@ -157,7 +157,7 @@ public class KCDataReceiver {
 				break;
 			case EXPEDITION_RESULT:
 				jsonHandler.apiReqMission_result(json);
-				dataHandler.expeditionResult(commonHandlingAction(new ExpeditionResult(json, params), requestCreationTime));
+				dataHandler.expeditionResult(commonHandlingAction(ExpeditionResult.instance(json, params), requestCreationTime));
 				break;
 			case UNKNOWN: // KCJsonType.UNKNOWN
 				jsonHandler.unknown(uri, json, params);
