@@ -3,7 +3,6 @@ package jp.azw.kancolleague;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Optional;
@@ -125,48 +124,46 @@ public class KCDataReceiver {
 	 */
 	protected void handleJson(String uri, byte[] responseBody, Map<String, String[]> params, long requestCreationTime) {
 		KCJsonType type = KCJsonType.detect(uri);
+
+		// 頭の svdata= を削除
+		ByteArrayInputStream is = new ByteArrayInputStream(responseBody);
+		is.mark(1);
+		if (is.read() == 's'){ // svdata= を削除
+			for (int c = is.read(); c != -1 && c != '='; c = is.read());
+		} else {
+			is.reset();
+		}
+		InputStreamReader isr = new InputStreamReader(is);
+		JsonObject json = new Gson().fromJson(isr, JsonObject.class);
 		try {
-			// 頭の svdata= を削除
-			InputStream is = new ByteArrayInputStream(responseBody);
-			is.mark(1);
-			if (is.read() == 's'){ // svdata= を削除
-				for (int c = is.read(); c != -1 && c != '='; c = is.read());
-			} else {
-				is.reset();
-			}
-			InputStreamReader isr = new InputStreamReader(is);
-			JsonObject json = new Gson().fromJson(isr, JsonObject.class);
-			try {
-				isr.close();
-				is.close();
-			} catch (IOException e) {				
-			}
-			isr = null;
-			is = null;
-			
-			jsonHandler.allEvent(uri, json, params);
-			
-			switch (type) {
-			case API_START2:
-				jsonHandler.apiStart2(json);
-				dataHandler.apiStart2(commonHandlingAction(new ApiStart2(json, params), requestCreationTime));
-				break;
-			case API_REQ_HOKYU__CHARGE:
-				jsonHandler.apiReqHokyu_charge(json);
-				dataHandler.portactionCharge(commonHandlingAction(new Charge(json, params), requestCreationTime));
-				break;
-			case EXPEDITION_RESULT:
-				jsonHandler.apiReqMission_result(json);
-				dataHandler.expeditionResult(commonHandlingAction(ExpeditionResult.instance(json, params), requestCreationTime));
-				break;
-			case UNKNOWN: // KCJsonType.UNKNOWN
-				jsonHandler.unknown(uri, json, params);
-				dataHandler.unknown(uri, params);
-				break;
-			default:
-				break;
-			}
-		} catch (IOException e) {
+			isr.close();
+			is.close();
+		} catch (IOException e) {				
+		}
+		isr = null;
+		is = null;
+		
+		jsonHandler.allEvent(uri, json, params);
+		
+		switch (type) {
+		case API_START2:
+			jsonHandler.apiStart2(json);
+			dataHandler.apiStart2(commonHandlingAction(new ApiStart2(json, params), requestCreationTime));
+			break;
+		case API_REQ_HOKYU__CHARGE:
+			jsonHandler.apiReqHokyu_charge(json);
+			dataHandler.portactionCharge(commonHandlingAction(new Charge(json, params), requestCreationTime));
+			break;
+		case EXPEDITION_RESULT:
+			jsonHandler.apiReqMission_result(json);
+			dataHandler.expeditionResult(commonHandlingAction(ExpeditionResult.instance(json, params), requestCreationTime));
+			break;
+		case UNKNOWN: // KCJsonType.UNKNOWN
+			jsonHandler.unknown(uri, json, params);
+			dataHandler.unknown(uri, params);
+			break;
+		default:
+			break;
 		}
 	}
 
