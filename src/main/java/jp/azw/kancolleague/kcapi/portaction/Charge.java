@@ -40,36 +40,22 @@ public class Charge extends Root{
 			return Arrays.stream(values()).parallel().filter(state -> state.getValue() == value ).findAny().orElse(UNKNOWN);
 		}
 	}
-	
+
 	private List<Integer> shipId;
 	private Kind kind;
 	private int onSlot;
 	/**
 	 * 
 	 */
-	private List<ChargeElement> ship = new ArrayList<>();
+	private List<ChargeElement> ship;
 	/**
 	 * 結局資源がどうなったか
 	 */
 	private Resource material;
 	private int useBou;
 	
-	public Charge(JsonObject charge, Map<String, String[]> params) {
-		super(charge, params);
-		shipId = Arrays.stream(params.get("api_id_items")[0].split(",")).parallel().map(Integer::valueOf).collect(Collectors.toList());
-		kind = Kind.getResult(Integer.valueOf(params.get("api_kind")[0]));
-		onSlot = Integer.valueOf(params.get("api_onslot")[0]);
-
-		JsonObject apiData = charge.get("api_data").getAsJsonObject();
-		this.ship = JsonUtil.fromJsonArray(apiData.get("api_ship"))
-				.map(JsonElement::getAsJsonObject)
-				.map(ship -> new ChargeElement(ship.get("api_id").getAsInt(),
-						new Resource(ship.get("api_fuel").getAsInt(),
-								ship.get("api_bull").getAsInt(), 0, 0),
-						JsonUtil.fromJsonArray(ship.get("api_onslot")).map(element -> element.getAsInt()).collect(Collectors.toList())))
-				.collect(Collectors.toList());
-		this.material = Resource.fromJsonArray(apiData.get("api_material").getAsJsonArray());
-		this.useBou = apiData.get("api_use_bou").getAsInt();
+	private Charge() {
+		 ship = new ArrayList<>();
 	}
 
 	public List<ChargeElement> get各艦補給情報() {
@@ -115,5 +101,26 @@ public class Charge extends Root{
 	
 	public Resource 消費資源合計(){
 		return get各艦補給情報().parallelStream().map(ChargeElement::getCharged).reduce(new Resource(0, 0, 0, getUsedBauxite()), Resource::sum);
+	}
+	
+	public static Charge instance(JsonObject charge, Map<String, String[]> params) {
+		JsonObject apiData = charge.get("api_data").getAsJsonObject();
+		Charge result = new Charge();
+		result.init(charge, params);
+		result.shipId = Arrays.stream(params.get("api_id_items")[0].split(",")).parallel().map(Integer::valueOf).collect(Collectors.toList());
+		result.kind = Kind.getResult(Integer.valueOf(params.get("api_kind")[0]));
+		result.onSlot = Integer.valueOf(params.get("api_onslot")[0]);
+
+		result.ship = JsonUtil.fromJsonArray(apiData.get("api_ship"))
+				.map(JsonElement::getAsJsonObject)
+				.map(ship -> new ChargeElement(ship.get("api_id").getAsInt(),
+						new Resource(ship.get("api_fuel").getAsInt(),
+								ship.get("api_bull").getAsInt(), 0, 0),
+						JsonUtil.fromJsonArray(ship.get("api_onslot")).map(element -> element.getAsInt()).collect(Collectors.toList())))
+				.collect(Collectors.toList());
+		result.material = Resource.fromJsonArray(apiData.get("api_material").getAsJsonArray());
+		result.useBou = apiData.get("api_use_bou").getAsInt();
+
+		return result;
 	}
 }

@@ -1,28 +1,28 @@
 package jp.azw.kancolleague.kcapi;
 
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.IntStream;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.annotations.SerializedName;
 
 public class ShipGraph {
+	@SerializedName("api_id")
 	private int id; // api_id 管理用 id
+
+	@SerializedName("api_sortno")
 	private int sortNo; // api_sort_no 図鑑番号
+
+	@SerializedName("api_filename")
 	private String fileName;
-	private String version;
 	
-	public ShipGraph(JsonObject apiMstShipgraph) {
-		id = apiMstShipgraph.get("api_id").getAsInt();
-		sortNo = apiMstShipgraph.get("api_sortno").getAsInt();
-		fileName = apiMstShipgraph.get("api_filename").getAsString();
-		version = apiMstShipgraph.get("api_version").getAsString();
-	}
+	@SerializedName("api_version")
+	private List<String> version;
+	
+//	public ShipGraph(JsonObject apiMstShipgraph) {
+//		id = apiMstShipgraph.get("api_id").getAsInt();
+//		sortNo = apiMstShipgraph.get("api_sortno").getAsInt();
+//		fileName = apiMstShipgraph.get("api_filename").getAsString();
+//		version = apiMstShipgraph.get("api_version").getAsString();
+//	}
 
 	public int getId() {
 		return id;
@@ -36,7 +36,7 @@ public class ShipGraph {
 		return fileName;
 	}
 
-	public String getVersion() {
+	public List<String> getVersion() {
 		return version;
 	}
 
@@ -52,7 +52,7 @@ public class ShipGraph {
 		this.fileName = fileName;
 	}
 
-	public void setVersion(String version) {
+	public void setVersion(List<String> version) {
 		this.version = version;
 	}
 }

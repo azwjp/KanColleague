@@ -28,7 +28,7 @@ public class ChargeTest {
 		param.put("api_kind", new String[] { "1" });
 		param.put("api_id_items", new String[] { "9094,7570,8777,8968" });
 		param.put("api_onslot", new String[] { "1" });
-		charge = new Charge(LoadJson.loadJson("api_req_hokyu/charge"), param);
+		charge = Charge.instance(LoadJson.loadJson("api_req_hokyu/charge"), param);
 	}
 
 	@Test
