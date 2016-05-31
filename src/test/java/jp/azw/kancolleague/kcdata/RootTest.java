@@ -24,6 +24,6 @@ public abstract class RootTest<T extends Root> {
 	@Test
 	public void test_Root_Param() {
 		assertThat(json.getToken(), is("test"));
-		assertThat(json.getVerNo(), is(1));
+		assertThat(json.getVerNo(), is("1"));
 	}
 }
