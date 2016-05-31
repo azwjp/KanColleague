@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 
 public class Root {
 	private String token;
-	private int verNo;
+	private String verNo;
 	private long time;
 	
 	protected Root() {
@@ -19,14 +19,14 @@ public class Root {
 	
 	protected void init(JsonObject json, Map<String, String[]> parameters) {
 		token = parameters.getOrDefault("api_token", new String[]{""})[0];
-		verNo = Integer.valueOf(parameters.getOrDefault("api_verno", new String[]{""})[0]);
+		verNo = parameters.getOrDefault("api_verno", new String[]{""})[0];
 	}
 
 	public String getToken() {
 		return token;
 	}
 
-	public int getVerNo() {
+	public String getVerNo() {
 		return verNo;
 	}
 
