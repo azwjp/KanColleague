@@ -215,7 +215,8 @@ public class KCDataReceiver {
 		return isParallel;
 	}
 
-	public void setParallel(boolean isParallel) {
+	public KCDataReceiver setParallel(boolean isParallel) {
 		this.isParallel = isParallel;
+		return this;
 	}
 }
