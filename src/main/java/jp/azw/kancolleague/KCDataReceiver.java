@@ -80,6 +80,7 @@ public class KCDataReceiver {
 					byte[] responseBody = outputStream.toByteArray();
 					switch (response.getContentType()) {
 					case "text/plain": // JSON
+						resourceHandler.text(request.getRequestURI(), new ByteArrayInputStream(responseBody), request.getParameterMap());
 						parallel(() -> handleJson(request.getRequestURI(),
 								responseBody,
 								request.getParameterMap(),
@@ -143,7 +144,7 @@ public class KCDataReceiver {
 		isr = null;
 		is = null;
 		
-		jsonHandler.allEvent(uri, json, params);
+		jsonHandler.allEvent(uri, type, json, params);
 		
 		switch (type) {
 		case API_START2:

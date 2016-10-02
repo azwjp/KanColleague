@@ -4,8 +4,10 @@ import java.util.Map;
 
 import com.google.gson.JsonObject;
 
+import jp.azw.kancolleague.util.KCJsonType;
+
 public interface JsonEventHandler {
-	default public void allEvent (String uri, JsonObject json, Map<String, String[]> parameters) {}
+	default public void allEvent (String uri, KCJsonType type, JsonObject json, Map<String, String[]> parameters) {}
 	
 	default public void apiStart2 (JsonObject json){}
 
