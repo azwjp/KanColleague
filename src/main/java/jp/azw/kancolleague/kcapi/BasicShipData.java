@@ -80,7 +80,7 @@ public class BasicShipData {
 		slotSize = Optional.of(apiMstShip.get("api_slot_num").getAsInt());
 		shipType = Optional.of(apiMstShip.get("api_stype").getAsInt());
 		yomi = Optional.of(apiMstShip.get("api_yomi").getAsString());
-		if (isFriend = apiMstShip.entrySet().size() == 27) {
+		if (isFriend = apiMstShip.has("api_sortno")) {
 			remodel = Optional.of(new Resource(apiMstShip.get("api_afterfuel").getAsInt(), apiMstShip.get("api_afterbull").getAsInt(), 0, 0));
 			remodelLv = Optional.of(apiMstShip.get("api_afterlv").getAsInt());
 			remodeledShipid = Optional.of(apiMstShip.get("api_aftershipid").getAsInt());
